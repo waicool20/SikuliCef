@@ -1,6 +1,6 @@
 /*
  * GPLv3 License
- *  Copyright (c) sikulix-cef by waicool20
+ *  Copyright (c) SikuliCef by waicool20
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,9 +31,12 @@ plugins {
 
 apply plugin: 'java'
 apply plugin: 'kotlin'
+apply plugin: 'application'
 
 group 'com.waicool20'
 version '1.0'
+
+mainClassName = "com.waicool20.sikulicef.SikuliCefKt"
 
 sourceCompatibility = 1.8
 

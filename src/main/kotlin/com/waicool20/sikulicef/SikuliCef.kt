@@ -1,6 +1,6 @@
 /*
  * GPLv3 License
- *  Copyright (c) sikulix-cef by waicool20
+ *  Copyright (c) SikuliCef by waicool20
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.sikulixcef
+package com.waicool20.sikulicef
 
-import com.waicool20.sikulixcef.util.SystemUtils
+import com.waicool20.sikulicef.util.SystemUtils
 import org.cef.CefApp
 import org.cef.OS
 import org.cef.browser.CefBrowser

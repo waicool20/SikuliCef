@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1330341353/java-sikulix-cef.iml" filepath="$PROJECT_DIR$/.idea/modules/1330341353/java-sikulix-cef.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1330341353/sikulix-cef_main.iml" filepath="$PROJECT_DIR$/.idea/modules/1330341353/sikulix-cef_main.iml" group="sikulix-cef" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1330341353/sikulix-cef_test.iml" filepath="$PROJECT_DIR$/.idea/modules/1330341353/sikulix-cef_test.iml" group="sikulix-cef" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/449997566/SikuliCef.iml" filepath="$PROJECT_DIR$/.idea/modules/449997566/SikuliCef.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/449997566/SikuliCef_main.iml" filepath="$PROJECT_DIR$/.idea/modules/449997566/SikuliCef_main.iml" group="SikuliCef" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/449997566/SikuliCef_test.iml" filepath="$PROJECT_DIR$/.idea/modules/449997566/SikuliCef_test.iml" group="SikuliCef" />
     </modules>
   </component>
 </project>
