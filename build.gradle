@@ -1,0 +1,80 @@
+buildscript {
+    ext.kotlin_version = '1.1.1'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
+}
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+group 'com.waicool20'
+version '1.0'
+
+sourceCompatibility = 1.8
+
+defaultTasks 'build'
+build.finalizedBy(tasks.shadowJar)
+jar.enabled = false
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+}
+
+dependencies {
+    /* kotlin */
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.14"
+
+    /* sikulix */
+    compile(group: "com.sikulix", name: "sikulixapi", version: "1.1.1-SNAPSHOT") {
+        exclude group: "com.sikulix"
+        exclude module: 'jadb'
+    }
+    compile(group: "com.sikulix", name: "sikulixlibslux", version: "1.1.1-SNAPSHOT")
+    compile(group: "com.sikulix", name: "sikulixlibsmac", version: "1.1.1-SNAPSHOT")
+    compile(group: "com.sikulix", name: "sikulixlibswin", version: "1.1.1-SNAPSHOT")
+
+
+    /* java-cef libs */
+
+    def library_root = "java-cef-framebuffer/binary_distrib/" + getOSString()
+    compile(files(library_root + "/bin/gluegen-rt.jar"))
+    compile(files(library_root + "/bin/gluegen-rt-natives-linux-amd64.jar"))
+    compile(files(library_root + "/bin/jcef.jar"))
+    compile(files(library_root + "/bin/jcef-tests.jar"))
+    compile(files(library_root + "/bin/jogl-all.jar"))
+    compile(files(library_root + "/bin/jogl-all-natives-linux-amd64.jar"))
+
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
+
+static String getOSString() {
+    def osString = System.getProperty("os.name").toLowerCase()
+    def osArch = System.getProperty("os.arch").contains("64") ? "64" : "32"
+    if (osString.contains("window")) {
+        return "win" + osArch
+    } else if (osString.contains("linux")) {
+        return "linux" + osArch
+    } else if (osString.contains("mac")) {
+        return "macosx64"
+    } else {
+        return "Unsupported OS"
+    }
+}
