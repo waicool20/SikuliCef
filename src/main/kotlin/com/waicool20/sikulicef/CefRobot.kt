@@ -26,7 +26,6 @@ import org.sikuli.script.Location
 import org.sikuli.script.ScreenImage
 import java.awt.Color
 import java.awt.Rectangle
-import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import java.awt.event.MouseWheelEvent
@@ -63,7 +62,7 @@ class CefRobot(val screen: CefScreen) : IRobot {
 
     override fun mouseDown(buttons: Int) {
         heldButtons = if (heldButtons == 0) buttons else heldButtons.or(buttons)
-        generateMouseEvent(MouseEvent.MOUSE_PRESSED, buttons)
+        generateMouseEvent(MouseEvent.MOUSE_PRESSED, heldButtons)
     }
 
     override fun mouseMove(x: Int, y: Int) {
@@ -193,14 +192,14 @@ class CefRobot(val screen: CefScreen) : IRobot {
                     screen.browser.uiComponent.parent,
                     mouseEvent,
                     System.currentTimeMillis(),
-                    0,
+                    buttons,
                     currentMouseX,
                     currentMouseY,
                     currentMouseX,
                     currentMouseY,
                     1,
                     false,
-                    buttons
+                    MouseEvent.NOBUTTON
             ))
 
 

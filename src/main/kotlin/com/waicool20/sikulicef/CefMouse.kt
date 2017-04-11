@@ -25,19 +25,19 @@ class CefMouse(val robot: CefRobot) {
 
     fun click(location: Location, buttons: Int, modifiers: Int) = synchronized(robot) {
         moveTo(location)
+        val pause = if (Settings.ClickDelay > 1) 1 else (Settings.ClickDelay * 1000).toInt()
         //robot.pressModifiers(modifiers) // TODO Implement Key modifiers
         robot.mouseDown(buttons)
-        robot.delay(100)
+        robot.delay(pause)
         robot.mouseUp(buttons)
         //robot.releaseModifiers(modifiers) // TODO Implement Key modifiers
-        val pause = if (Settings.ClickDelay > 1) 1 else (Settings.ClickDelay * 1000).toInt()
         Settings.ClickDelay = 0.0
-        robot.delay(pause)
     }
 
     fun doubleClick(location: Location, buttons: Int, modifiers: Int) = synchronized(robot) {
         repeat(2) {
             click(location, buttons, modifiers)
+            robot.delay(10)
         }
     }
 

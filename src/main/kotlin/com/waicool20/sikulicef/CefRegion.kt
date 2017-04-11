@@ -19,7 +19,6 @@ package com.waicool20.sikulicef
 
 import org.sikuli.script.*
 import java.awt.Rectangle
-import java.awt.event.MouseEvent
 
 open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScreen? = CefScreen.getScreen()) : Region() {
     constructor(region: Region, screen: IScreen? = CefScreen.getScreen()) : this(region.x, region.y, region.w, region.h, screen)
@@ -90,7 +89,7 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     override fun <PFRML : Any?> click(target: PFRML): Int = click(target, 0)
     override fun <PFRML : Any?> click(target: PFRML, modifiers: Int): Int =
             try {
-                mouse.click(getLocationFromTarget(target), MouseEvent.BUTTON1, modifiers)
+                mouse.click(getLocationFromTarget(target), Mouse.LEFT, modifiers)
                 1
             } catch (e: FindFailed) {
                 0
@@ -101,7 +100,7 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     override fun <PFRML : Any?> doubleClick(target: PFRML): Int = doubleClick(target, 0)
     override fun <PFRML : Any?> doubleClick(target: PFRML, modifiers: Int): Int =
             try {
-                mouse.doubleClick(getLocationFromTarget(target), MouseEvent.BUTTON1, modifiers)
+                mouse.doubleClick(getLocationFromTarget(target), Mouse.LEFT, modifiers)
                 1
             } catch (e: FindFailed) {
                 0
