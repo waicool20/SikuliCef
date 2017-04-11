@@ -22,6 +22,7 @@ import org.sikuli.script.Location
 
 
 class CefMouse(val robot: CefRobot) {
+    val cursor = CefMouseCursor(robot)
 
     fun click(location: Location, buttons: Int, modifiers: Int) = synchronized(this) {
         moveTo(location)
@@ -57,7 +58,7 @@ class CefMouse(val robot: CefRobot) {
     fun spinWheel(location: Location, direction: Int, steps: Int, stepDelay: Int) = synchronized(this) {
         moveTo(location)
         repeat(steps) {
-            robot.mouseWheel(if (direction < 0 ) -1 else 1)
+            robot.mouseWheel(if (direction < 0) -1 else 1)
             robot.delay(stepDelay)
         }
     }

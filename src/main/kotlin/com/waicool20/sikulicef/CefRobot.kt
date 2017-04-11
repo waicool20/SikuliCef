@@ -22,9 +22,11 @@ import org.sikuli.basics.AnimatorTimeBased
 import org.sikuli.basics.Settings
 import org.sikuli.script.*
 import java.awt.Color
-import java.awt.KeyboardFocusManager
 import java.awt.Rectangle
-import java.awt.event.*
+import java.awt.event.KeyEvent
+import java.awt.event.MouseEvent
+import java.awt.event.MouseMotionAdapter
+import java.awt.event.MouseWheelEvent
 import java.util.concurrent.TimeUnit
 import javax.swing.KeyStroke
 
@@ -42,11 +44,6 @@ class CefRobot(val screen: CefScreen) : IRobot {
                 override fun mouseMoved(event: MouseEvent) {
                     if (currentMouseX != event.x) currentMouseX = event.x
                     if (currentMouseY != event.y) currentMouseY = event.y
-                }
-            })
-            screen.browser.uiComponent.addKeyListener(object: KeyAdapter(){
-                override fun keyPressed(event: KeyEvent) {
-                    println("Key: ${event.extendedKeyCode}\t\tChar: ${event.keyChar}\t\tMod: ${event.modifiers}")
                 }
             })
         }

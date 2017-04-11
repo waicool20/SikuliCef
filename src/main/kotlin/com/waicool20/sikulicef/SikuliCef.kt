@@ -26,7 +26,6 @@ import org.sikuli.script.ImagePath
 import org.sikuli.script.Key
 import org.sikuli.script.Pattern
 import java.awt.BorderLayout
-import java.awt.event.MouseEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.nio.file.FileVisitOption
@@ -35,6 +34,7 @@ import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
 import javax.swing.JFrame
+import javax.swing.JPanel
 import javax.swing.SwingUtilities
 
 fun main(args: Array<String>) {
@@ -66,7 +66,9 @@ fun main(args: Array<String>) {
     val browser = client.createBrowser("http://www.google.com", OS.isLinux(), false)
     val browserUI = browser.uiComponent
     val mainFrame = JFrame()
-    mainFrame.contentPane.add(browserUI, BorderLayout.CENTER)
+    val panel = JPanel(BorderLayout())
+    panel.add(browserUI)
+    mainFrame.contentPane.add(panel, BorderLayout.CENTER)
     mainFrame.setSize(800, 600)
     mainFrame.isVisible = true
 
@@ -100,6 +102,8 @@ fun main(args: Array<String>) {
         match.type(Key.ENTER)
 
         /* Test Mouse */
+        println("Waiting 5 seconds for page to load")
+        TimeUnit.SECONDS.sleep(5)
         match = screen.exists(Pattern("mic.png").exact(), 10.0)
         println("Match: $match")
         println("Hovering")
