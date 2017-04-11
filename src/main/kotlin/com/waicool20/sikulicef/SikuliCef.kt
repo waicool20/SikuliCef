@@ -25,6 +25,7 @@ import org.cef.handler.CefLoadHandlerAdapter
 import org.sikuli.script.ImagePath
 import org.sikuli.script.Pattern
 import java.awt.BorderLayout
+import java.awt.event.MouseEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.nio.file.FileVisitOption
@@ -88,10 +89,18 @@ fun main(args: Array<String>) {
         TimeUnit.SECONDS.sleep(4)
         println("Done waiting, checking for google image")
         val screen = CefScreen(browser)
-        val match = screen.exists(Pattern("searchbar.png").exact(), 10.0)
+        var match = screen.exists(Pattern("searchbar.png").exact(), 10.0)
         println("Match: $match")
-        ImageIO.write(browser.currentFrameBuffer, "png", Paths.get("screenshot.png").toFile())
 
+        match = screen.exists(Pattern("mic.png").exact(), 10.0)
+        println("Match: $match")
+        println("Hovering")
+        match.hover()
+        println("Sleeping for 4 seconds then clicking")
+        TimeUnit.SECONDS.sleep(4)
+        println("Clicking")
+        match.click()
+        ImageIO.write(browser.currentFrameBuffer, "png", Paths.get("screenshot.png").toFile())
     }.start()
 
 }

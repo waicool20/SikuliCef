@@ -68,15 +68,15 @@ class CefMatch(match: Match) : Match(match) {
     override fun click() = region.click()
 
     override fun <PFRML : Any?> click(target: PFRML) = region.click(target)
-    override fun <PFRML : Any?> click(target: PFRML, modifiers: Int?) = region.click(target, modifiers)
+    override fun <PFRML : Any?> click(target: PFRML, modifiers: Int) = region.click(target, modifiers)
 
     override fun doubleClick() = region.doubleClick()
     override fun <PFRML : Any?> doubleClick(target: PFRML) = region.doubleClick(target)
-    override fun <PFRML : Any?> doubleClick(target: PFRML, modifiers: Int?) = region.doubleClick(target, modifiers)
+    override fun <PFRML : Any?> doubleClick(target: PFRML, modifiers: Int) = region.doubleClick(target, modifiers)
 
     override fun rightClick() = region.rightClick()
     override fun <PFRML : Any?> rightClick(target: PFRML) = region.rightClick(target)
-    override fun <PFRML : Any?> rightClick(target: PFRML, modifiers: Int?) = region.rightClick(target, modifiers)
+    override fun <PFRML : Any?> rightClick(target: PFRML, modifiers: Int) = region.rightClick(target, modifiers)
 
     override fun hover() = region.hover()
     override fun <PFRML : Any?> hover(target: PFRML) = region.hover(target)

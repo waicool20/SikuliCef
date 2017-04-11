@@ -37,9 +37,11 @@ class CefScreen(val browser: CefBrowser) : CefRegion(
 
     init {
         Factory.screens.putIfAbsent(getIdentifier(), this)
+        screen = this
     }
 
-    val robot = CefRobot(this)
+    private val robot = CefRobot(this)
+    val mouse = CefMouse(robot)
     var lastImage = getCurrentFrameScreenImage()
 
     fun getIdentifier() = browser.identifier

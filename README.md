@@ -15,7 +15,7 @@ git submodule update --recursive --remote
 ```
 Build the java-cef fork using the instructions at: https://bitbucket.org/chromiumembedded/java-cef/wiki/BranchesAndBuilding
 
-Finally you can try out a small demo where it will attempt to search for the searchbar using an image:
+Finally you can try out a small demo where it will attempt to search for the google searchbar using an image:
 ```
 # Windows
 ./gradlew.bat run

@@ -76,6 +76,11 @@ dependencies {
     compile(files(library_root + "/bin/jogl-all.jar"))
     compile(files(library_root + "/bin/jogl-all-natives-linux-amd64.jar"))
 
+    /* logging */
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.8'
+
+    /*----- Testing ------*/
+
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 

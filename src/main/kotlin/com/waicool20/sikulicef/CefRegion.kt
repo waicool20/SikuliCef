@@ -17,11 +17,9 @@
 
 package com.waicool20.sikulicef
 
-import org.sikuli.script.IScreen
-import org.sikuli.script.Location
-import org.sikuli.script.Match
-import org.sikuli.script.Region
+import org.sikuli.script.*
 import java.awt.Rectangle
+import java.awt.event.MouseEvent
 
 open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScreen? = CefScreen.getScreen()) : Region() {
     constructor(region: Region, screen: IScreen? = CefScreen.getScreen()) : this(region.x, region.y, region.w, region.h, screen)
@@ -35,7 +33,7 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
         if (screen != null) this.screen = screen
     }
 
-    private fun getRobot() = screen.robot
+    private val mouse = (this.screen as CefScreen).mouse
 
     override fun setLocation(loc: Location): CefRegion {
         x = loc.x
@@ -53,7 +51,7 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
         h = if (H > 1) H else 1
     }
 
-    override fun getCenter() = Location((x + w) / 2, (y + h) / 2)
+    override fun getCenter() = Location(x + (w / 2), y + (h / 2))
     override fun getTopLeft() = Location(x, y)
     override fun getTopRight() = Location(x + w - 1, y)
     override fun getBottomLeft() = Location(x, y + h - 1)
@@ -86,50 +84,48 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     override fun <PSI : Any?> exists(target: PSI) = CefMatch(super.exists(target))
     override fun <PSI : Any?> exists(target: PSI, timeout: Double) = CefMatch(super.exists(target, timeout))
 
-    //<editor-fold desc="Mouse and Keyboard Actions">
-    override fun click(): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    //<editor-fold desc="Mouse and KeyboardActions">
+    override fun click(): Int = click(center, 0)
 
-    override fun <PFRML : Any?> click(target: PFRML): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun <PFRML : Any?> click(target: PFRML): Int = click(target, 0)
+    override fun <PFRML : Any?> click(target: PFRML, modifiers: Int): Int =
+            try {
+                mouse.click(getLocationFromTarget(target), MouseEvent.BUTTON1, modifiers)
+                1
+            } catch (e: FindFailed) {
+                0
+            }
 
-    override fun <PFRML : Any?> click(target: PFRML, modifiers: Int?): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
 
-    override fun doubleClick(): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun doubleClick(): Int = doubleClick(center, 0)
+    override fun <PFRML : Any?> doubleClick(target: PFRML): Int = doubleClick(target, 0)
+    override fun <PFRML : Any?> doubleClick(target: PFRML, modifiers: Int): Int =
+            try {
+                mouse.doubleClick(getLocationFromTarget(target), MouseEvent.BUTTON1, modifiers)
+                1
+            } catch (e: FindFailed) {
+                0
+            }
 
-    override fun <PFRML : Any?> doubleClick(target: PFRML): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
 
-    override fun <PFRML : Any?> doubleClick(target: PFRML, modifiers: Int?): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun rightClick(): Int = rightClick(center, 0)
+    override fun <PFRML : Any?> rightClick(target: PFRML): Int = rightClick(target, 0)
+    override fun <PFRML : Any?> rightClick(target: PFRML, modifiers: Int): Int =
+            try {
+                mouse.click(getLocationFromTarget(target), Mouse.RIGHT, modifiers)
+                1
+            } catch (e: FindFailed) {
+                0
+            }
 
-    override fun rightClick(): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun <PFRML : Any?> rightClick(target: PFRML): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun <PFRML : Any?> rightClick(target: PFRML, modifiers: Int?): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun hover(): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun <PFRML : Any?> hover(target: PFRML): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun hover(): Int = hover(center)
+    override fun <PFRML : Any?> hover(target: PFRML): Int =
+            try {
+                mouse.moveTo(getLocationFromTarget(target))
+                1
+            } catch (e: FindFailed) {
+                0
+            }
 
     override fun <PFRML : Any?> dragDrop(target: PFRML): Int {
         throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
@@ -161,32 +157,31 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     //</editor-fold>
 
     //<editor-fold desc="Low-level Mouse and Keyboard Actions">
-    override fun mouseDown(buttons: Int) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun mouseDown(buttons: Int) = mouse.mouseDown(buttons)
 
     override fun mouseUp() {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+        mouse.mouseUp()
     }
 
     override fun mouseUp(buttons: Int) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+        mouse.mouseUp(buttons)
     }
 
-    override fun mouseMove(): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun mouseMove(): Int = if (lastMatch != null) mouseMove(lastMatch) else 0
+    override fun mouseMove(xoff: Int, yoff: Int): Int = mouseMove(Location(x + xoff, y + yoff))
+    override fun <PFRML : Any?> mouseMove(target: PFRML): Int =
+            try {
+                mouse.moveTo(getLocationFromTarget(target))
+                1
+            } catch (e: FindFailed) {
+                0
+            }
 
-    override fun mouseMove(xoff: Int, yoff: Int): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun <PFRML : Any?> mouseMove(target: PFRML): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun wheel(direction: Int, steps: Int): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+    override fun wheel(direction: Int, steps: Int): Int = wheel(mouse.getCurrentMouseLocation(), direction, steps)
+    override fun <PFRML : Any?> wheel(target: PFRML, direction: Int, steps: Int): Int = wheel(target, direction, steps, Mouse.WHEEL_STEP_DELAY)
+    override fun <PFRML : Any?> wheel(target: PFRML, direction: Int, steps: Int, stepDelay: Int): Int {
+        mouse.spinWheel(getLocationFromTarget(target), direction, steps, stepDelay)
+        return 1
     }
 
     override fun keyDown(keycode: Int) {
@@ -235,4 +230,13 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
         throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
     }
     //</editor-fold>
+
+    override fun <PSIMRL> getLocationFromTarget(target: PSIMRL): Location = when (target) {
+        is Pattern, is String, is Image -> find(target).target
+        is Match -> target.target
+        is CefRegion -> target.center
+        is Region -> target.center
+        is Location -> target
+        else -> throw FindFailed("")
+    }
 }
