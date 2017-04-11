@@ -17,9 +17,7 @@
 
 package com.waicool20.sikulicef
 
-import org.sikuli.script.Location
-import org.sikuli.script.Match
-import org.sikuli.script.Region
+import org.sikuli.script.*
 import java.awt.Rectangle
 
 
@@ -105,6 +103,8 @@ class CefMatch(match: Match) : Match(match) {
     override fun <PFRML : Any?> mouseMove(target: PFRML) = region.mouseMove(target)
 
     override fun wheel(direction: Int, steps: Int) = region.wheel(direction, steps)
+    override fun <PFRML : Any?> wheel(target: PFRML, direction: Int, steps: Int): Int = region.wheel(target, direction, steps)
+    override fun <PFRML : Any?> wheel(target: PFRML, direction: Int, steps: Int, stepDelay: Int): Int = region.wheel(target, direction, steps, stepDelay)
 
     override fun keyDown(keycode: Int) = region.keyDown(keycode)
     override fun keyDown(keys: String) = region.keyDown(keys)
@@ -122,4 +122,13 @@ class CefMatch(match: Match) : Match(match) {
     override fun highlight(secs: Float, color: String) = region.highlight(secs, color)
     override fun highlight(secs: Int, color: String) = region.highlight(secs, color)
     //</editor-fold>
+
+    override fun <PSIMRL> getLocationFromTarget(target: PSIMRL): Location = when (target) {
+        is Pattern, is String, is Image -> find(target).target
+        is Match -> target.target
+        is CefRegion -> target.center
+        is Region -> target.center
+        is Location -> target
+        else -> throw FindFailed("")
+    }
 }
