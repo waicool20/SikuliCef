@@ -23,39 +23,38 @@ import org.sikuli.script.Location
 
 class CefMouse(val robot: CefRobot) {
 
-    fun click(location: Location, buttons: Int, modifiers: Int) = synchronized(robot) {
+    fun click(location: Location, buttons: Int, modifiers: Int) = synchronized(this) {
         moveTo(location)
         val pause = if (Settings.ClickDelay > 1) 1 else (Settings.ClickDelay * 1000).toInt()
-        //robot.pressModifiers(modifiers) // TODO Implement Key modifiers
+        robot.pressModifiers(modifiers)
         robot.mouseDown(buttons)
         robot.delay(pause)
         robot.mouseUp(buttons)
-        //robot.releaseModifiers(modifiers) // TODO Implement Key modifiers
+        robot.releaseModifiers(modifiers)
         Settings.ClickDelay = 0.0
     }
 
-    fun doubleClick(location: Location, buttons: Int, modifiers: Int) = synchronized(robot) {
+    fun doubleClick(location: Location, buttons: Int, modifiers: Int) = synchronized(this) {
         repeat(2) {
             click(location, buttons, modifiers)
-            robot.delay(10)
         }
     }
 
-    fun moveTo(location: Location) = synchronized(robot) {
+    fun moveTo(location: Location) = synchronized(this) {
         robot.smoothMove(location)
     }
 
     /* Low level actions */
 
-    fun mouseDown(buttons: Int) = synchronized(robot) {
+    fun mouseDown(buttons: Int) = synchronized(this) {
         robot.mouseDown(buttons)
     }
 
-    fun mouseUp(buttons: Int = 0): Int = synchronized(robot) {
+    fun mouseUp(buttons: Int = 0): Int = synchronized(this) {
         robot.mouseUp(buttons)
     }
 
-    fun spinWheel(location: Location, direction: Int, steps: Int, stepDelay: Int) = synchronized(robot) {
+    fun spinWheel(location: Location, direction: Int, steps: Int, stepDelay: Int) = synchronized(this) {
         moveTo(location)
         repeat(steps) {
             robot.mouseWheel(if (direction < 0 ) -1 else 1)

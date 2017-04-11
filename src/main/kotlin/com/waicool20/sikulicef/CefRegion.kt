@@ -33,6 +33,7 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     }
 
     private val mouse = (this.screen as CefScreen).mouse
+    private val keyboard = (this.screen as CefScreen).keyboard
 
     override fun setLocation(loc: Location): CefRegion {
         x = loc.x
@@ -142,9 +143,25 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
         throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
     }
 
-    override fun type(text: String): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+    override fun type(text: String): Int = type(text, 0)
+    override fun type(text: String, modifiers: String): Int = type(text, CefKeyBoard.parseModifiers(modifiers))
+    override fun type(text: String, modifiers: Int): Int {
+        keyboard.type(null, text, modifiers)
+        return 1
     }
+
+    override fun <PFRML : Any?> type(target: PFRML, text: String): Int = type(target, text, 0)
+    override fun <PFRML : Any?> type(target: PFRML, text: String, modifiers: String): Int =
+            type(target, text, CefKeyBoard.parseModifiers(modifiers))
+
+    override fun <PFRML : Any?> type(target: PFRML, text: String, modifiers: Int): Int =
+            try {
+                keyboard.type(getLocationFromTarget(target), text, modifiers)
+                1
+            } catch (e: FindFailed) {
+                0
+            }
+
 
     override fun paste(text: String): Int {
         throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
@@ -183,25 +200,12 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
         return 1
     }
 
-    override fun keyDown(keycode: Int) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun keyDown(keycode: Int) = keyboard.keyDown(keycode)
+    override fun keyDown(keys: String) = keyboard.keyDown(keys)
 
-    override fun keyDown(keys: String) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun keyUp() {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun keyUp(keycode: Int) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun keyUp(keys: String) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun keyUp() = keyboard.keyUp()
+    override fun keyUp(keycode: Int) = keyboard.keyUp(keycode)
+    override fun keyUp(keys: String) = keyboard.keyUp(keys)
     //</editor-fold>
 
     //<editor-fold desc="Highlight Action">

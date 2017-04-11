@@ -42,6 +42,7 @@ class CefScreen(val browser: CefBrowser) : CefRegion(
 
     private val robot = CefRobot(this)
     val mouse = CefMouse(robot)
+    val keyboard = CefKeyBoard(robot)
     var lastImage = getCurrentFrameScreenImage()
 
     fun getIdentifier() = browser.identifier

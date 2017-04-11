@@ -20,21 +20,20 @@ package com.waicool20.sikulicef
 import org.sikuli.basics.AnimatorOutQuarticEase
 import org.sikuli.basics.AnimatorTimeBased
 import org.sikuli.basics.Settings
-import org.sikuli.script.IRobot
-import org.sikuli.script.IScreen
-import org.sikuli.script.Location
-import org.sikuli.script.ScreenImage
+import org.sikuli.script.*
 import java.awt.Color
+import java.awt.KeyboardFocusManager
 import java.awt.Rectangle
-import java.awt.event.MouseEvent
-import java.awt.event.MouseMotionAdapter
-import java.awt.event.MouseWheelEvent
+import java.awt.event.*
 import java.util.concurrent.TimeUnit
+import javax.swing.KeyStroke
+
 
 class CefRobot(val screen: CefScreen) : IRobot {
     private var currentMouseX = 0
     private var currentMouseY = 0
     private var heldButtons = 0
+    private val heldKeys = mutableSetOf<Int>()
     private var autoDelay = 100
 
     init {
@@ -43,6 +42,11 @@ class CefRobot(val screen: CefScreen) : IRobot {
                 override fun mouseMoved(event: MouseEvent) {
                     if (currentMouseX != event.x) currentMouseX = event.x
                     if (currentMouseY != event.y) currentMouseY = event.y
+                }
+            })
+            screen.browser.uiComponent.addKeyListener(object: KeyAdapter(){
+                override fun keyPressed(event: KeyEvent) {
+                    println("Key: ${event.extendedKeyCode}\t\tChar: ${event.keyChar}\t\tMod: ${event.modifiers}")
                 }
             })
         }
@@ -114,48 +118,64 @@ class CefRobot(val screen: CefScreen) : IRobot {
     //</editor-fold>
 
     //<editor-fold desc="Keyboard Actions">
+
     override fun pressModifiers(modifiers: Int) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+        if (modifiers and KeyModifier.SHIFT != 0) keyDown(KeyEvent.VK_SHIFT)
+        if (modifiers and KeyModifier.CTRL != 0) keyDown(KeyEvent.VK_CONTROL)
+        if (modifiers and KeyModifier.ALT != 0) keyDown(KeyEvent.VK_ALT)
+        if (modifiers and KeyModifier.META != 0 || modifiers and KeyModifier.WIN != 0) {
+            if (Settings.isWindows()) {
+                keyDown(KeyEvent.VK_WINDOWS)
+            } else {
+                keyDown(KeyEvent.VK_META)
+            }
+        }
     }
 
     override fun releaseModifiers(modifiers: Int) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+        if (modifiers and KeyModifier.SHIFT != 0) keyUp(KeyEvent.VK_SHIFT)
+        if (modifiers and KeyModifier.CTRL != 0) keyUp(KeyEvent.VK_CONTROL)
+        if (modifiers and KeyModifier.ALT != 0) keyUp(KeyEvent.VK_ALT)
+        if (modifiers and KeyModifier.META != 0 || modifiers and KeyModifier.WIN != 0) {
+            if (Settings.isWindows()) {
+                keyUp(KeyEvent.VK_WINDOWS)
+            } else {
+                keyUp(KeyEvent.VK_META)
+            }
+        }
     }
 
-    override fun keyDown(keys: String?) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+    override fun keyDown(keys: String) = keys.toCharArray().map(Char::toInt).forEach {
+        keyDown(KeyEvent.getExtendedKeyCodeForChar(it))
     }
 
     override fun keyDown(code: Int) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+        if (!heldKeys.contains(code)) {
+            heldKeys.add(code)
+            generateKeyEvent(KeyEvent.KEY_PRESSED, code)
+        }
     }
 
-    override fun typeEnds() {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun typeChar(character: Char, mode: IRobot.KeyMode?) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+    override fun typeChar(character: Char, mode: IRobot.KeyMode) = when (mode) {
+        IRobot.KeyMode.PRESS_ONLY -> keyDown(character.toInt())
+        IRobot.KeyMode.PRESS_RELEASE -> typeKey(character.toInt())
+        IRobot.KeyMode.RELEASE_ONLY -> keyUp(character.toInt())
     }
 
     override fun typeKey(key: Int) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+        generateKeyEvent(KeyEvent.KEY_TYPED, key)
     }
 
-    override fun typeStarts() {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun keyUp(keys: String?) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+    override fun keyUp() = heldKeys.forEach { keyUp(it) }
+    override fun keyUp(keys: String) = keys.toCharArray().map(Char::toInt).forEach {
+        keyUp(KeyEvent.getExtendedKeyCodeForChar(it))
     }
 
     override fun keyUp(code: Int) {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun keyUp() {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+        if (heldKeys.contains(code)) {
+            generateKeyEvent(KeyEvent.KEY_RELEASED, code)
+            heldKeys.remove(code)
+        }
     }
     //</editor-fold>
 
@@ -175,16 +195,16 @@ class CefRobot(val screen: CefScreen) : IRobot {
 
     override fun delay(ms: Int) = TimeUnit.MILLISECONDS.sleep(ms.toLong())
 
-    override fun waitForIdle() {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
     //</editor-fold>
 
     //<editor-fold desc="Stuff that does Nothing">
     override fun cleanup() = Unit
 
-    override fun clickEnds() = Unit
     override fun clickStarts() = Unit
+    override fun clickEnds() = Unit
+    override fun typeStarts() = Unit
+    override fun typeEnds() = Unit
+    override fun waitForIdle() = Unit
     //</editor-fold>
 
     private fun generateMouseEvent(mouseEvent: Int, buttons: Int) =
@@ -202,6 +222,17 @@ class CefRobot(val screen: CefScreen) : IRobot {
                     MouseEvent.NOBUTTON
             ))
 
+    private fun generateKeyEvent(keyEvent: Int, keyCode: Int) {
+        screen.browser.uiComponent.requestFocus()
+        screen.browser.uiComponent.dispatchEvent(KeyEvent(
+                screen.browser.uiComponent,
+                keyEvent,
+                System.currentTimeMillis(),
+                0,
+                KeyStroke.getKeyStroke(keyCode.toChar()).keyCode,
+                if (keyEvent == KeyEvent.KEY_TYPED) keyCode.toChar() else KeyEvent.CHAR_UNDEFINED
+        ))
+    }
 
     fun getCurrentMouseLocation() = Location(currentMouseX, currentMouseY)
 }

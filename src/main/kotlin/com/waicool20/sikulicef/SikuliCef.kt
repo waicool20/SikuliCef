@@ -23,6 +23,7 @@ import org.cef.OS
 import org.cef.browser.CefBrowser
 import org.cef.handler.CefLoadHandlerAdapter
 import org.sikuli.script.ImagePath
+import org.sikuli.script.Key
 import org.sikuli.script.Pattern
 import java.awt.BorderLayout
 import java.awt.event.MouseEvent
@@ -89,17 +90,25 @@ fun main(args: Array<String>) {
         TimeUnit.SECONDS.sleep(4)
         println("Done waiting, checking for google image")
         val screen = CefScreen(browser)
+
+        /* Keyboard Test */
         var match = screen.exists(Pattern("searchbar.png").exact(), 10.0)
         println("Match: $match")
+        println("Attempting to type \"Hello SikuliCef\"")
+        match.click()
+        match.type("Hello SikuliCef")
+        match.type(Key.ENTER)
 
+        /* Test Mouse */
         match = screen.exists(Pattern("mic.png").exact(), 10.0)
         println("Match: $match")
         println("Hovering")
         match.hover()
-        println("Sleeping for 4 seconds then clicking")
-        TimeUnit.SECONDS.sleep(4)
+        println("Sleeping for 2 seconds then clicking")
+        TimeUnit.SECONDS.sleep(2)
         println("Clicking")
         match.click()
+
         ImageIO.write(browser.currentFrameBuffer, "png", Paths.get("screenshot.png").toFile())
     }.start()
 

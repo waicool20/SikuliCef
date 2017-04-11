@@ -87,6 +87,11 @@ class CefMatch(match: Match) : Match(match) {
     override fun <PFRML : Any?> dropAt(target: PFRML) = region.dropAt(target)
 
     override fun type(text: String) = region.type(text)
+    override fun type(text: String, modifiers: String): Int = region.type(text, modifiers)
+    override fun type(text: String, modifiers: Int): Int = region.type(text, modifiers)
+    override fun <PFRML : Any?> type(target: PFRML, text: String, modifiers: String): Int = region.type(target, text, modifiers)
+    override fun <PFRML : Any?> type(target: PFRML, text: String, modifiers: Int): Int = region.type(target, text, modifiers)
+    override fun <PFRML : Any?> type(target: PFRML, text: String): Int = region.type(target, text)
 
     override fun paste(text: String) = region.paste(text)
     override fun <PFRML : Any?> paste(target: PFRML, text: String) = region.paste(target, text)
@@ -116,6 +121,7 @@ class CefMatch(match: Match) : Match(match) {
 
     //<editor-fold desc="Highlight Action">
     override fun highlight() = region.highlight()
+
     override fun highlight(secs: Float) = region.highlight(secs)
     override fun highlight(secs: Int) = region.highlight(secs)
     override fun highlight(color: String) = region.highlight(color)
