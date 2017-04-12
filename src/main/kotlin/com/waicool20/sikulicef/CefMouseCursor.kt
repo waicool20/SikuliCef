@@ -42,6 +42,14 @@ class CefMouseCursor(val robot: CefRobot) : Window(null) {
             }
         })
         frame.addWindowListener(object : WindowAdapter() {
+            override fun windowDeactivated(event: WindowEvent) {
+                isVisible = false
+            }
+
+            override fun windowActivated(event: WindowEvent) {
+                isVisible = true
+            }
+
             override fun windowClosing(event: WindowEvent) = SwingUtilities.invokeLater { dispose() }
         })
         robot.screen.browser.uiComponent.addMouseMotionListener(object : MouseMotionAdapter() {
