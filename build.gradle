@@ -72,7 +72,6 @@ dependencies {
     compile(files(library_root + "/bin/gluegen-rt.jar"))
     compile(files(library_root + "/bin/gluegen-rt-natives-linux-amd64.jar"))
     compile(files(library_root + "/bin/jcef.jar"))
-    compile(files(library_root + "/bin/jcef-tests.jar"))
     compile(files(library_root + "/bin/jogl-all.jar"))
     compile(files(library_root + "/bin/jogl-all-natives-linux-amd64.jar"))
 
