@@ -63,7 +63,7 @@ fun main(args: Array<String>) {
         }
     })
 
-    val browser = client.createBrowser("http://www.google.com", OS.isLinux(), false)
+    val browser = client.createBrowser("http://www.google.com", true, false)
     val browserUI = browser.uiComponent
     val mainFrame = JFrame()
     val panel = JPanel(BorderLayout())
@@ -74,23 +74,20 @@ fun main(args: Array<String>) {
 
     mainFrame.addWindowListener(object : WindowAdapter() {
         override fun windowClosing(event: WindowEvent?) {
-            super.windowClosing(event)
-            SwingUtilities.invokeLater {
-                cefApp.dispose()
+            SwingUtilities.invokeLater{
+                CefApp.getInstance().dispose()
                 mainFrame.dispose()
             }
         }
 
         override fun windowClosed(event: WindowEvent?) {
-            super.windowClosed(event)
             System.exit(0)
         }
     })
 
     Thread {
-        println("Sleeping for 4 seconds to wait for browser")
-        TimeUnit.SECONDS.sleep(4)
-        println("Done waiting, checking for google image")
+        while (browser.isLoading) {}
+        println("Browsers finished loading")
         val screen = CefScreen(browser)
 
         /* Keyboard Test */
@@ -102,12 +99,11 @@ fun main(args: Array<String>) {
         match.type(Key.ENTER)
 
         /* Test Mouse */
-        println("Waiting 5 seconds for page to load")
-        TimeUnit.SECONDS.sleep(5)
+        TimeUnit.SECONDS.sleep(1)
+        while (browser.isLoading) {}
+        println("Browsers finished loading")
         match = screen.exists(Pattern("mic.png").exact(), 10.0)
         println("Match: $match")
-        println("Hovering")
-        match.hover()
         println("Sleeping for 2 seconds then clicking")
         TimeUnit.SECONDS.sleep(2)
         println("Clicking")

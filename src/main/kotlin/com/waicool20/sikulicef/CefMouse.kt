@@ -19,6 +19,7 @@ package com.waicool20.sikulicef
 
 import org.sikuli.basics.Settings
 import org.sikuli.script.Location
+import org.sikuli.script.Mouse
 
 
 class CefMouse(val robot: CefRobot) {
@@ -41,19 +42,13 @@ class CefMouse(val robot: CefRobot) {
         }
     }
 
-    fun moveTo(location: Location) = synchronized(this) {
-        robot.smoothMove(location)
-    }
+    fun moveTo(location: Location) = synchronized(this) { robot.smoothMove(location) }
 
     /* Low level actions */
 
-    fun mouseDown(buttons: Int) = synchronized(this) {
-        robot.mouseDown(buttons)
-    }
+    fun mouseDown(buttons: Int) = synchronized(this) { robot.mouseDown(buttons) }
 
-    fun mouseUp(buttons: Int = 0): Int = synchronized(this) {
-        robot.mouseUp(buttons)
-    }
+    fun mouseUp(buttons: Int = 0): Int = synchronized(this) { robot.mouseUp(buttons) }
 
     fun spinWheel(location: Location, direction: Int, steps: Int, stepDelay: Int) = synchronized(this) {
         moveTo(location)
@@ -61,6 +56,36 @@ class CefMouse(val robot: CefRobot) {
             robot.mouseWheel(if (direction < 0) -1 else 1)
             robot.delay(stepDelay)
         }
+    }
+
+    fun drag(location: Location, resetDelays: Boolean = true) = synchronized(this) {
+        moveTo(location)
+        robot.delay((Settings.DelayBeforeMouseDown * 1000).toInt())
+        mouseDown(Mouse.LEFT)
+        robot.delay((if (Settings.DelayBeforeDrag < 0) Settings.DelayAfterDrag else Settings.DelayBeforeDrag).toInt() * 1000)
+        if (resetDelays) resetDragDelays()
+        1
+    }
+
+    fun dropAt(location: Location, resetDelays: Boolean = true) = synchronized(this) {
+        moveTo(location)
+        robot.delay((Settings.DelayBeforeDrop * 1000).toInt())
+        mouseUp(Mouse.LEFT)
+        if (resetDelays) resetDragDelays()
+        1
+    }
+
+    fun dragDrop(loc1: Location, loc2: Location) = synchronized(this) {
+        drag(loc1, false)
+        dropAt(loc2)
+        1
+    }
+
+    private fun resetDragDelays() {
+        Settings.DelayBeforeMouseDown = Settings.DelayValue
+        Settings.DelayAfterDrag = Settings.DelayValue
+        Settings.DelayBeforeDrag = -Settings.DelayValue
+        Settings.DelayBeforeDrop = Settings.DelayValue
     }
 
     fun getCurrentMouseLocation() = robot.getCurrentMouseLocation()

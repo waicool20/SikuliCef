@@ -19,6 +19,7 @@ package com.waicool20.sikulicef
 
 import org.sikuli.script.*
 import java.awt.Rectangle
+import java.awt.event.KeyEvent
 
 open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScreen? = CefScreen.getScreen()) : Region() {
     constructor(region: Region, screen: IScreen? = CefScreen.getScreen()) : this(region.x, region.y, region.w, region.h, screen)
@@ -127,21 +128,13 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
                 0
             }
 
-    override fun <PFRML : Any?> dragDrop(target: PFRML): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun <PFRML : Any?> dragDrop(target: PFRML): Int = dragDrop(lastMatch, target)
 
-    override fun <PFRML : Any?> dragDrop(t1: PFRML, t2: PFRML): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun <PFRML : Any?> dragDrop(t1: PFRML, t2: PFRML): Int = mouse.dragDrop(getLocationFromTarget(t1), getLocationFromTarget(t2))
 
-    override fun <PFRML : Any?> drag(target: PFRML): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun <PFRML : Any?> drag(target: PFRML): Int = mouse.drag(getLocationFromTarget(target))
 
-    override fun <PFRML : Any?> dropAt(target: PFRML): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun <PFRML : Any?> dropAt(target: PFRML): Int = mouse.dropAt(getLocationFromTarget(target))
 
     override fun type(text: String): Int = type(text, 0)
     override fun type(text: String, modifiers: String): Int = type(text, CefKeyBoard.parseModifiers(modifiers))
@@ -163,12 +156,16 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
             }
 
 
-    override fun paste(text: String): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    override fun paste(text: String): Int = paste(null, text)
 
     override fun <PFRML : Any?> paste(target: PFRML, text: String): Int {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+        if (text.isEmpty() || (target != null && click(target) == 1)) return 1
+        (screen as CefScreen).clipboard = text
+        keyDown(Key.getHotkeyModifier())
+        keyDown(KeyEvent.VK_V)
+        keyUp(KeyEvent.VK_V)
+        keyUp(Key.getHotkeyModifier())
+        return 0
     }
     //</editor-fold>
 

@@ -44,6 +44,8 @@ class CefScreen(val browser: CefBrowser) : CefRegion(
     val mouse = CefMouse(robot)
     val keyboard = CefKeyBoard(robot)
 
+    var clipboard = ""
+
     fun getIdentifier() = browser.identifier
 
     override fun getScreen(): IScreen = this
