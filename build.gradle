@@ -65,15 +65,14 @@ dependencies {
     compile(group: "com.sikulix", name: "sikulixlibsmac", version: "1.1.1-SNAPSHOT")
     compile(group: "com.sikulix", name: "sikulixlibswin", version: "1.1.1-SNAPSHOT")
 
-
     /* java-cef libs */
 
     def library_root = "java-cef-framebuffer/binary_distrib/" + getOSString()
     compile(files(library_root + "/bin/gluegen-rt.jar"))
-    compile(files(library_root + "/bin/gluegen-rt-natives-linux-amd64.jar"))
+    compile(files(library_root + "/bin/gluegen-rt-natives-" + getJogampVersion() + ".jar"))
     compile(files(library_root + "/bin/jcef.jar"))
     compile(files(library_root + "/bin/jogl-all.jar"))
-    compile(files(library_root + "/bin/jogl-all-natives-linux-amd64.jar"))
+    compile(files(library_root + "/bin/jogl-all-natives-" + getJogampVersion() + ".jar"))
 
     /* logging */
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.8'
@@ -90,15 +89,38 @@ kotlin {
 }
 
 static String getOSString() {
-    def osString = System.getProperty("os.name").toLowerCase()
     def osArch = System.getProperty("os.arch").contains("64") ? "64" : "32"
-    if (osString.contains("window")) {
+    if (isWindows()) {
         return "win" + osArch
-    } else if (osString.contains("linux")) {
+    } else if (isLinux()) {
         return "linux" + osArch
-    } else if (osString.contains("mac")) {
+    } else if (isMac()) {
         return "macosx64"
     } else {
         return "Unsupported OS"
     }
+}
+
+static Boolean isWindows() {
+    return System.getProperty("os.name").toLowerCase().contains("window")
+}
+
+static Boolean isLinux() {
+    return System.getProperty("os.name").toLowerCase().contains("linux")
+}
+
+static Boolean isMac() {
+    return System.getProperty("os.name").toLowerCase().contains("mac")
+}
+
+static String getJogampVersion() {
+    def library = ""
+    if (isWindows()) {
+        library += "windows-"
+    } else if (isLinux()) {
+        library += "linux-"
+    } else if (isMac()) {
+        return "macosx-univeral"
+    }
+    return library + System.getProperty("os.arch")
 }

@@ -90,15 +90,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/jcef-tests.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/jogl-all.jar!/" />
         </CLASSES>
         <JAVADOC />
