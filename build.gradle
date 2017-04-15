@@ -31,12 +31,9 @@ plugins {
 
 apply plugin: 'java'
 apply plugin: 'kotlin'
-apply plugin: 'application'
 
 group 'com.waicool20'
 version '1.0'
-
-mainClassName = "com.waicool20.sikulicef.SikuliCefKt"
 
 sourceCompatibility = 1.8
 
@@ -51,15 +48,10 @@ task copyJcefLibs(type: Copy) {
 }
 
 task copyJogampLibs(type: Copy) {
-    from(zipTree(library_root + "/bin/jogl-all-natives-" + getJogampVersion() + ".jar")) {
+    from(library_root + "/bin/natives/") {
         include "*/**"
-        exclude "META-INF"
     }
-    from(zipTree(library_root + "/bin/gluegen-rt-natives-" + getJogampVersion() + ".jar")) {
-        include "*/**"
-        exclude "META-INF"
-    }
-    into(library_res_dir + "natives/" + getJogampVersion())
+    into(library_res_dir + "natives/" )
 }
 
 defaultTasks 'build'
