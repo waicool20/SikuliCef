@@ -20,6 +20,7 @@ package com.waicool20.sikulicef
 import com.waicool20.sikulicef.util.CefResourceLoader
 import org.cef.CefApp
 import org.cef.browser.CefBrowser
+import org.cef.handler.CefAppHandlerAdapter
 import org.cef.handler.CefLoadHandlerAdapter
 import org.sikuli.script.ImagePath
 import org.sikuli.script.Key
@@ -32,7 +33,6 @@ import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
 import javax.swing.JFrame
 import javax.swing.JPanel
-import javax.swing.SwingUtilities
 
 fun main(args: Array<String>) {
     CefResourceLoader.load()
@@ -43,6 +43,12 @@ fun main(args: Array<String>) {
             "--disable-overlay-scrollbar",
             "--hide-scrollbars"
     )
+    CefApp.addAppHandler(object : CefAppHandlerAdapter(null) {
+        override fun stateHasChanged(state: CefApp.CefAppState) {
+            if (state == CefApp.CefAppState.TERMINATED)
+                System.exit(0)
+        }
+    })
 
     val cefApp = CefApp.getInstance(argsList)
     val client = cefApp.createClient()
@@ -65,14 +71,8 @@ fun main(args: Array<String>) {
 
     mainFrame.addWindowListener(object : WindowAdapter() {
         override fun windowClosing(event: WindowEvent?) {
-            SwingUtilities.invokeLater {
-                CefApp.getInstance().dispose()
-                mainFrame.dispose()
-            }
-        }
-
-        override fun windowClosed(event: WindowEvent?) {
-            System.exit(0)
+            CefApp.getInstance().dispose()
+            mainFrame.dispose()
         }
     })
 
