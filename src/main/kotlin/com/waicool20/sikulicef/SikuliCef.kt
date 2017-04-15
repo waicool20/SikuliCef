@@ -17,9 +17,8 @@
 
 package com.waicool20.sikulicef
 
-import com.waicool20.sikulicef.util.SystemUtils
+import com.waicool20.sikulicef.util.CefResourceLoader
 import org.cef.CefApp
-import org.cef.OS
 import org.cef.browser.CefBrowser
 import org.cef.handler.CefLoadHandlerAdapter
 import org.sikuli.script.ImagePath
@@ -28,8 +27,6 @@ import org.sikuli.script.Pattern
 import java.awt.BorderLayout
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import java.nio.file.FileVisitOption
-import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
@@ -38,13 +35,7 @@ import javax.swing.JPanel
 import javax.swing.SwingUtilities
 
 fun main(args: Array<String>) {
-    ImagePath.add(ClassLoader.getSystemClassLoader().getResource("images"))
-
-    Files.walk(Paths.get("java-cef-framebuffer/binary_distrib").toAbsolutePath(), Integer.MAX_VALUE, FileVisitOption.FOLLOW_LINKS)
-            .filter { it.toString().endsWith(".so") || it.toString().endsWith(".dll") }
-            .forEach {
-                SystemUtils.loadLibrary(it)
-            }
+    CefResourceLoader.load()
 
     val argsList = arrayOf(
             *args,
@@ -74,7 +65,7 @@ fun main(args: Array<String>) {
 
     mainFrame.addWindowListener(object : WindowAdapter() {
         override fun windowClosing(event: WindowEvent?) {
-            SwingUtilities.invokeLater{
+            SwingUtilities.invokeLater {
                 CefApp.getInstance().dispose()
                 mainFrame.dispose()
             }
@@ -86,7 +77,9 @@ fun main(args: Array<String>) {
     })
 
     Thread {
-        while (browser.isLoading) {}
+        ImagePath.add(ClassLoader.getSystemClassLoader().getResource("images"))
+        while (browser.isLoading) {
+        }
         println("Browsers finished loading")
         val screen = CefScreen(browser)
 
@@ -100,7 +93,8 @@ fun main(args: Array<String>) {
 
         /* Test Mouse */
         TimeUnit.SECONDS.sleep(1)
-        while (browser.isLoading) {}
+        while (browser.isLoading) {
+        }
         println("Browsers finished loading")
         match = screen.exists(Pattern("mic.png").exact(), 10.0)
         println("Match: $match")

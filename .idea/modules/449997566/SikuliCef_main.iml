@@ -53,6 +53,9 @@
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file:///media/Storage/Programming/java/SikuliCef/build/classes/main" />
     <exclude-output />
+    <content url="file:///media/Storage/Programming/java/SikuliCef/java-cef-res">
+      <sourceFolder url="file:///media/Storage/Programming/java/SikuliCef/java-cef-res" type="java-resource" />
+    </content>
     <content url="file:///media/Storage/Programming/java/SikuliCef/src/main">
       <sourceFolder url="file:///media/Storage/Programming/java/SikuliCef/src/main/java" isTestSource="false" />
       <sourceFolder url="file:///media/Storage/Programming/java/SikuliCef/src/main/kotlin" isTestSource="false" />
@@ -64,15 +67,6 @@
       <library>
         <CLASSES>
           <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/gluegen-rt.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/gluegen-rt-natives-linux-amd64.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -96,7 +90,17 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" scope="RUNTIME">
+      <library>
+        <CLASSES>
+          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/gluegen-rt-natives-linux-amd64.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.1.1" level="project" />
+    <orderEntry type="module-library" scope="RUNTIME">
       <library>
         <CLASSES>
           <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/jogl-all-natives-linux-amd64.jar!/" />
@@ -105,7 +109,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.1.1" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jre8:1.1.1" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core:0.14" level="project" />
     <orderEntry type="library" name="Gradle: com.sikulix:sikulixapi:1.1.1-SNAPSHOT" level="project" />
