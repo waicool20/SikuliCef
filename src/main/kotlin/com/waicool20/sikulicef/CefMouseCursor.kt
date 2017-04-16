@@ -25,9 +25,8 @@ import javax.imageio.ImageIO
 import javax.swing.JFrame
 import javax.swing.SwingUtilities
 
-class CefMouseCursor(val robot: CefRobot) : Window(null) {
+class CefMouseCursor(val robot: CefRobot, val frame: JFrame) : Window(null) {
     private val image = ImageIO.read(javaClass.classLoader.getResource("images/cursor.png"))
-    private val frame = (SwingUtilities.getRoot(robot.screen.browser.uiComponent) as JFrame)
 
     init {
         updateBounds()
