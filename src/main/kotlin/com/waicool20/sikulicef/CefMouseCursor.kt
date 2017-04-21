@@ -17,67 +17,39 @@
 
 package com.waicool20.sikulicef
 
-import java.awt.Color
 import java.awt.Graphics
-import java.awt.Window
-import java.awt.event.*
+import java.awt.Rectangle
+import java.awt.event.MouseEvent
+import java.awt.event.MouseListener
+import java.awt.event.MouseMotionListener
 import javax.imageio.ImageIO
-import javax.swing.JFrame
-import javax.swing.SwingUtilities
 
-class CefMouseCursor(val robot: CefRobot, val frame: JFrame) : Window(null) {
+class CefMouseCursor(screen: CefScreen) : CefOverlay(screen) {
     private val image = ImageIO.read(javaClass.classLoader.getResource("images/cursor.png"))
 
     init {
         updateBounds()
-        isAlwaysOnTop = true
-        background = Color(0, 0, 0, 0)
-        isVisible = true
-
-        frame.addWindowStateListener { isVisible = it.newState == 0 }
-        frame.addComponentListener(object : ComponentAdapter() {
-            override fun componentMoved(event: ComponentEvent) {
-                updateBounds()
-            }
-        })
-        frame.addWindowListener(object : WindowAdapter() {
-            override fun windowDeactivated(event: WindowEvent) {
-                isVisible = false
-            }
-
-            override fun windowActivated(event: WindowEvent) {
-                isVisible = true
-            }
-
-            override fun windowClosing(event: WindowEvent) = SwingUtilities.invokeLater { dispose() }
-        })
-        robot.screen.browser.uiComponent.addMouseMotionListener(object : MouseMotionAdapter() {
-            override fun mouseMoved(event: MouseEvent) = updateBounds()
-        })
-        robot.screen.browser.uiComponent.addMouseListener(object : MouseAdapter() {
-            override fun mouseEntered(event: MouseEvent) = updateBounds()
-            override fun mouseExited(event: MouseEvent) = updateBounds()
-        })
+        with(screen.browser.uiComponent) {
+            addMouseMotionListener(object : MouseMotionListener {
+                override fun mouseDragged(event: MouseEvent) = updateBounds()
+                override fun mouseMoved(event: MouseEvent) = updateBounds()
+            })
+            addMouseListener(object : MouseListener {
+                override fun mouseReleased(event: MouseEvent) = updateBounds()
+                override fun mouseClicked(event: MouseEvent) = updateBounds()
+                override fun mousePressed(event: MouseEvent) = updateBounds()
+                override fun mouseEntered(event: MouseEvent) = updateBounds()
+                override fun mouseExited(event: MouseEvent) = updateBounds()
+            })
+        }
     }
 
-    override fun paint(graphics: Graphics) {
+    override fun paintContent(graphics: Graphics) {
         graphics.drawImage(image, 0, 0, this)
     }
 
-    override fun update(graphics: Graphics) = paint(graphics)
-
-    fun updateBounds() {
-        val mouseLocation = robot.getCurrentMouseLocation()
-        val frameX = frame.contentPane.locationOnScreen.x
-        val frameY = frame.contentPane.locationOnScreen.y
-        var newX = frameX + mouseLocation.x + 2
-        var newY = frameY + mouseLocation.y + 2
-
-        if (newX > frameX + frame.contentPane.width) newX = frameX + frame.contentPane.width
-        if (newY > frameY + frame.contentPane.height) newY = frameY + frame.contentPane.height
-
-        SwingUtilities.invokeLater {
-            setBounds(newX, newY, image.width, image.height)
-        }
+    private fun updateBounds() {
+        val mouseLocation = (screen.robot as CefRobot).getCurrentMouseLocation()
+        bounds = Rectangle(mouseLocation.x + 1, mouseLocation.y + 1, image.width, image.height)
     }
 }

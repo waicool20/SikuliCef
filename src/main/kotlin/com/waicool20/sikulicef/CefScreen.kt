@@ -17,11 +17,13 @@
 
 package com.waicool20.sikulicef
 
+import com.waicool20.sikulicef.util.LayeredLayout
 import org.cef.browser.CefBrowser
 import org.sikuli.basics.Settings
 import org.sikuli.script.*
 import org.sikuli.util.ScreenHighlighter
 import java.awt.Rectangle
+import javax.swing.JLayeredPane
 
 class CefScreen(val browser: CefBrowser) : CefRegion(
         browser.uiComponent.bounds.x,
@@ -38,11 +40,21 @@ class CefScreen(val browser: CefBrowser) : CefRegion(
     init {
         Factory.screens.putIfAbsent(getIdentifier(), this)
         screen = this
+        isVirtual = true
+        setOtherScreen(this)
     }
 
     private val robot = CefRobot(this)
     val mouse = CefMouse(robot)
     val keyboard = CefKeyBoard(robot)
+
+    val uiComponent = run {
+        val layeredPane = JLayeredPane()
+        layeredPane.layout = LayeredLayout(layeredPane)
+        layeredPane.add(CefMouseCursor(this))
+        layeredPane.add(browser.uiComponent)
+        layeredPane
+    }
 
     var clipboard = ""
 
@@ -81,7 +93,11 @@ class CefScreen(val browser: CefBrowser) : CefRegion(
 
     override fun getLastScreenImageFromScreen(): ScreenImage = lastScreenImage
 
-    private fun getCurrentFrameScreenImage(): ScreenImage = with(browser.currentFrameBuffer) {
-        ScreenImage(Rectangle(0, 0, width, height), this)
+    private fun getCurrentFrameScreenImage(): ScreenImage {
+        while (browser.currentFrameBuffer == null) {
+        }
+        with(browser.currentFrameBuffer) {
+            return ScreenImage(Rectangle(0, 0, width, height), this)
+        }
     }
 }

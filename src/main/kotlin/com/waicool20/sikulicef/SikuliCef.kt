@@ -32,7 +32,6 @@ import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
 import javax.swing.JFrame
-import javax.swing.JPanel
 
 fun main(args: Array<String>) {
     CefResourceLoader.load()
@@ -62,11 +61,9 @@ fun main(args: Array<String>) {
     })
 
     val browser = client.createBrowser("http://www.google.com", true, false)
-    val browserUI = browser.uiComponent
+    val screen = CefScreen(browser)
     val mainFrame = JFrame()
-    val panel = JPanel(BorderLayout())
-    panel.add(browserUI)
-    mainFrame.contentPane.add(panel, BorderLayout.CENTER)
+    mainFrame.contentPane.add(screen.uiComponent, BorderLayout.CENTER)
     mainFrame.setSize(800, 600)
     mainFrame.isVisible = true
 
@@ -82,7 +79,6 @@ fun main(args: Array<String>) {
         while (browser.isLoading) {
         }
         println("Browsers finished loading")
-        val screen = CefScreen(browser)
 
         /* Keyboard Test */
         var match = screen.exists(Pattern("searchbar.png").exact(), 10.0)

@@ -25,7 +25,7 @@ import java.awt.Color
 import java.awt.Rectangle
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
-import java.awt.event.MouseMotionAdapter
+import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelEvent
 import java.util.concurrent.TimeUnit
 import javax.swing.KeyStroke
@@ -40,8 +40,10 @@ class CefRobot(val screen: CefScreen) : IRobot {
 
     init {
         with(screen.browser.uiComponent) {
-            screen.browser.uiComponent.addMouseMotionListener(object : MouseMotionAdapter() {
-                override fun mouseMoved(event: MouseEvent) {
+            screen.browser.uiComponent.addMouseMotionListener(object : MouseMotionListener {
+                override fun mouseDragged(event: MouseEvent) = updateMouseCoords(event)
+                override fun mouseMoved(event: MouseEvent) = updateMouseCoords(event)
+                private fun updateMouseCoords(event: MouseEvent) {
                     if (currentMouseX != event.x) currentMouseX = event.x
                     if (currentMouseY != event.y) currentMouseY = event.y
                 }

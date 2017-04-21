@@ -20,22 +20,9 @@ package com.waicool20.sikulicef
 import org.sikuli.basics.Settings
 import org.sikuli.script.Location
 import org.sikuli.script.Mouse
-import org.slf4j.LoggerFactory
-import javax.swing.JFrame
-import javax.swing.SwingUtilities
 
 
 class CefMouse(val robot: CefRobot) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
-    val cursor = with(SwingUtilities.getRoot(robot.screen.browser.uiComponent)) {
-        if (this is JFrame) {
-            CefMouseCursor(robot, this)
-        } else {
-            logger.warn("Software mouse cursor is not available for top level components that are not JFrames")
-        }
-    }
-
     fun click(location: Location, buttons: Int, modifiers: Int) = synchronized(this) {
         moveTo(location)
         val pause = if (Settings.ClickDelay > 1) 1 else (Settings.ClickDelay * 1000).toInt()
