@@ -136,5 +136,5 @@ class CefMatch(match: Match) : Match(match) {
         is Region -> target.center
         is Location -> target
         else -> throw FindFailed("")
-    }
+    }.setOtherScreen(screen)
 }

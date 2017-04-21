@@ -33,8 +33,8 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
         if (screen != null) this.screen = screen
     }
 
-    private val mouse = (this.screen as CefScreen).mouse
-    private val keyboard = (this.screen as CefScreen).keyboard
+    private val mouse by lazy { (this.screen as CefScreen).mouse }
+    private val keyboard by lazy { (this.screen as CefScreen).keyboard }
 
     override fun setLocation(loc: Location): CefRegion {
         x = loc.x
@@ -238,5 +238,5 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
         is Region -> target.center
         is Location -> target
         else -> throw FindFailed("")
-    }
+    }.setOtherScreen(screen)
 }
