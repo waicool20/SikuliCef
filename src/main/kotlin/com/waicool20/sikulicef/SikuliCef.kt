@@ -39,11 +39,12 @@ fun main(args: Array<String>) {
 
     val argsList = arrayOf(
             *args,
-            "--ppapi-flash-path='${Paths.get("/usr/lib/PepperFlash/libpepflashplayer.so")}'",
+            "--ppapi-flash-path=${Paths.get("/usr/lib/PepperFlash/libpepflashplayer.so")}",
+            "--ppapi-flash-version=25.0.0.148",
             "--disable-overlay-scrollbar",
             "--hide-scrollbars"
     )
-    CefApp.addAppHandler(object : CefAppHandlerAdapter(null) {
+    CefApp.addAppHandler(object : CefAppHandlerAdapter(argsList) {
         override fun stateHasChanged(state: CefApp.CefAppState) {
             if (state == CefApp.CefAppState.TERMINATED)
                 System.exit(0)
