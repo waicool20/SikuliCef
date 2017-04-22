@@ -37,25 +37,20 @@ version '1.0'
 
 sourceCompatibility = 1.8
 
-def library_root = "java-cef-framebuffer/binary_distrib/" + getOSString()
-def library_res_dir = "./java-cef-res/"
+def binaryDistribDir = "java-cef-framebuffer/binary_distrib/" + getOSString()
+def libraryResDir = "./java-cef-res/"
 
-task copyJcefLibs(type: Copy) {
-    from(library_root + "/bin/lib/" + getOSString()) {
-        include "*/**"
+task copyBinaryDistrib(type: Copy) {
+    from (binaryDistribDir + "/bin/") {
+        exclude("**/tests")
+        exclude("**/jcef-tests.jar")
+        rename('(.*).jar', '$1.jarpak')
     }
-    into(library_res_dir + "java-cef-res")
-}
-
-task copyJogampLibs(type: Copy) {
-    from(library_root + "/bin/natives/") {
-        include "*/**"
-    }
-    into(library_res_dir + "natives/" )
+    into libraryResDir + "java-cef-res"
 }
 
 defaultTasks 'build'
-processResources.dependsOn([copyJcefLibs, copyJogampLibs])
+processResources.dependsOn(copyBinaryDistrib)
 build.finalizedBy(shadowJar)
 jar.enabled = false
 
@@ -82,11 +77,11 @@ dependencies {
 
     /* java-cef libs */
 
-    compile(files(library_root + "/bin/gluegen-rt.jar"))
-    runtime(files(library_root + "/bin/gluegen-rt-natives-" + getJogampVersion() + ".jar"))
-    compile(files(library_root + "/bin/jcef.jar"))
-    compile(files(library_root + "/bin/jogl-all.jar"))
-    runtime(files(library_root + "/bin/jogl-all-natives-" + getJogampVersion() + ".jar"))
+    compileOnly(files(getJarLibraryDir(binaryDistribDir) + "gluegen-rt.jar"))
+    compileOnly(files(getJarLibraryDir(binaryDistribDir) + "gluegen-rt-natives-" + getJogampVersion() + ".jar"))
+    compileOnly(files(getJarLibraryDir(binaryDistribDir) + "jcef.jar"))
+    compileOnly(files(getJarLibraryDir(binaryDistribDir) + "jogl-all.jar"))
+    compileOnly(files(getJarLibraryDir(binaryDistribDir) + "jogl-all-natives-" + getJogampVersion() + ".jar"))
 
     /* logging */
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.8'
@@ -105,7 +100,7 @@ kotlin {
 sourceSets {
     main {
         resources {
-            srcDir library_res_dir
+            srcDir libraryResDir
         }
     }
 }
@@ -151,4 +146,13 @@ static String getJogampVersion() {
         return "macosx-univeral"
     }
     return library + System.getProperty("os.arch")
+}
+
+static String getJarLibraryDir(String binaryDistribDir) {
+    if (isWindows() || isLinux()) {
+        return binaryDistribDir + "/bin/"
+    } else if (isMac()) {
+        return binaryDistribDir + "/bin/jcef_app.app/Contents/Java"
+    }
+    return ""
 }

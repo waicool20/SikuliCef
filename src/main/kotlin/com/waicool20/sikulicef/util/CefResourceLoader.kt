@@ -39,7 +39,7 @@ object CefResourceLoader {
             (FileSystems.newFileSystem(jarURI, env)).use { fs ->
                 Files.walk(fs.getPath("/java-cef-res"))
                         .filter { it.nameCount > 1 }
-                        .map { it to libDir.resolve((if (it.nameCount > 2) it.subpath(1, it.nameCount) else it.fileName).toString()) }
+                        .map { it to libDir.resolve((if (it.nameCount > 2) it.subpath(1, it.nameCount) else it.fileName).toString().replace(".jarpak", ".jar")) }
                         .forEach {
                             Files.copy(it.first, it.second)
                             val perms = Files.getPosixFilePermissions(it.second).toMutableSet()
@@ -56,9 +56,14 @@ object CefResourceLoader {
 
 
         Files.walk(libDir)
-                .filter { it.toString().endsWith(".so") || it.toString().endsWith(".dll") }
+                .filter { it.toString().matches(".*\\.(so|dll|dylib)".toRegex()) }
                 .forEach {
                     SystemUtils.loadLibrary(it)
+                }
+        Files.walk(libDir)
+                .filter { it.toString().endsWith(".jar") }
+                .forEach {
+                    SystemUtils.loadJarLibrary(it)
                 }
     }
 }

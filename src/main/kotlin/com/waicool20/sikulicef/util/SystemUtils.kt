@@ -17,6 +17,8 @@
 
 package com.waicool20.sikulicef.util
 
+import java.net.URL
+import java.net.URLClassLoader
 import java.nio.file.Path
 
 object SystemUtils {
@@ -32,9 +34,24 @@ object SystemUtils {
         currentLibs.addAll(addLibs)
 
         System.setProperty("java.library.path", currentLibs.joinToString(":"))
-        with (ClassLoader::class.java.getDeclaredField("sys_paths")) {
+        with(ClassLoader::class.java.getDeclaredField("sys_paths")) {
             isAccessible = true
             set(null, null)
+        }
+    }
+
+    fun loadJarLibrary(jar: Path) {
+        val loader = ClassLoader.getSystemClassLoader() as URLClassLoader
+        val url = jar.toUri().toURL()
+
+        try {
+            if (!loader.urLs.contains(url)) {
+                val method = URLClassLoader::class.java.getDeclaredMethod("addURL", URL::class.java)
+                method.isAccessible = true
+                method.invoke(loader, url)
+            }
+        } catch (e: Exception) {
+            println("Exception occured while trying to add Jar library")
         }
     }
 }
