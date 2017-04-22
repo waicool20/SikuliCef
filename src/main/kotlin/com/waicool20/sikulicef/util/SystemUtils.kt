@@ -25,7 +25,8 @@ object SystemUtils {
     fun loadLibrary(path: Path) = loadLibrary(listOf(path))
 
     fun loadLibrary(paths: List<Path>) {
-        val currentLibs = System.getProperty("java.library.path").split(":").toMutableSet()
+        val separator = if (isWindows()) ";" else ":"
+        val currentLibs = System.getProperty("java.library.path").split(separator).toMutableSet()
         val addLibs = paths
                 .map(Path::toAbsolutePath)
                 .map(Path::getParent)
@@ -33,7 +34,7 @@ object SystemUtils {
                 .distinct()
         currentLibs.addAll(addLibs)
 
-        System.setProperty("java.library.path", currentLibs.joinToString(":"))
+        System.setProperty("java.library.path", currentLibs.joinToString(separator))
         with(ClassLoader::class.java.getDeclaredField("sys_paths")) {
             isAccessible = true
             set(null, null)
@@ -54,6 +55,10 @@ object SystemUtils {
             println("Exception occured while trying to add Jar library")
         }
     }
+
+    fun isWindows() = System.getProperty("os.name").toLowerCase().contains("win")
+    fun isLinux() = System.getProperty("os.name").toLowerCase().contains("linux")
+    fun isMac() = System.getProperty("os.name").toLowerCase().contains("mac")
 }
 
 

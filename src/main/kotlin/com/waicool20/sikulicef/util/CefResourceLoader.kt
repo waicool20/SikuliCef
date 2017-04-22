@@ -42,9 +42,11 @@ object CefResourceLoader {
                         .map { it to libDir.resolve((if (it.nameCount > 2) it.subpath(1, it.nameCount) else it.fileName).toString().replace(".jarpak", ".jar")) }
                         .forEach {
                             Files.copy(it.first, it.second)
-                            val perms = Files.getPosixFilePermissions(it.second).toMutableSet()
-                            perms.addAll(listOf(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.GROUP_EXECUTE, PosixFilePermission.OTHERS_EXECUTE))
-                            Files.setPosixFilePermissions(it.second, perms)
+                            if (!SystemUtils.isWindows()) {
+                                val perms = Files.getPosixFilePermissions(it.second).toMutableSet()
+                                perms.addAll(listOf(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.GROUP_EXECUTE, PosixFilePermission.OTHERS_EXECUTE))
+                                Files.setPosixFilePermissions(it.second, perms)
+                            }
                         }
             }
             Runtime.getRuntime().addShutdownHook(Thread {
@@ -54,16 +56,25 @@ object CefResourceLoader {
             })
         }
 
-
         Files.walk(libDir)
                 .filter { it.toString().matches(".*\\.(so|dll|dylib)".toRegex()) }
+                .peek { SystemUtils.loadLibrary(it) } // Add to library path first
                 .forEach {
-                    SystemUtils.loadLibrary(it)
+                    try {
+                        // Try loading it through System if possible, otherwise ignore and let CefApp take care of it
+                        System.load(it.toAbsolutePath().toString())
+                    } catch (e: UnsatisfiedLinkError) {
+                        // Ignore
+                    }
                 }
         Files.walk(libDir)
                 .filter { it.toString().endsWith(".jar") }
                 .forEach {
                     SystemUtils.loadJarLibrary(it)
                 }
+
+        if (SystemUtils.isMac()) {
+            System.load(libDir.resolve("jcef_app.app/Contents/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework").toString())
+        }
     }
 }
