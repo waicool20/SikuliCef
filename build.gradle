@@ -152,7 +152,7 @@ static String getJarLibraryDir(String binaryDistribDir) {
     if (isWindows() || isLinux()) {
         return binaryDistribDir + "/bin/"
     } else if (isMac()) {
-        return binaryDistribDir + "/bin/jcef_app.app/Contents/Java"
+        return binaryDistribDir + "/bin/jcef_app.app/Contents/Java/"
     }
     return ""
 }
