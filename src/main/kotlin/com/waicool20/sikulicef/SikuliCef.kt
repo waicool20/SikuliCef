@@ -84,10 +84,11 @@ fun main(args: Array<String>) {
         var match = screen.exists(Pattern("searchbar.png").exact(), 10.0)
         println("Match: $match")
         println("Attempting to type \"Hello SikuliCef\"")
-        match.highlight(5)
-        match.click()
-        match.type("Hello SikuliCef")
-        match.type(Key.ENTER)
+        match?.highlight()
+        match?.click()
+        match?.type("Hello SikuliCef")
+        match?.type(Key.ENTER)
+        match?.highlight()
 
         /* Test Mouse */
         TimeUnit.SECONDS.sleep(1)
@@ -99,7 +100,7 @@ fun main(args: Array<String>) {
         println("Sleeping for 2 seconds then clicking")
         TimeUnit.SECONDS.sleep(2)
         println("Clicking")
-        match.click()
+        match?.click()
 
         ImageIO.write(browser.currentFrameBuffer, "png", Paths.get("screenshot.png").toFile())
     }.start()

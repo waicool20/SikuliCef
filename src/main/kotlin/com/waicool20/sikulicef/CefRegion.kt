@@ -63,7 +63,7 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     override fun getBottomLeft() = Location(x, y + h - 1)
     override fun getBottomRight() = Location(x + w - 1, y + h - 1)
 
-    override fun getLastMatch(): Match? = CefMatch(super.getLastMatch())
+    override fun getLastMatch() = super.getLastMatch()?.let(::CefMatch)
     override fun getLastMatches() =
             super.getLastMatches().asSequence().toList().map(::CefMatch).iterator()
 
@@ -80,15 +80,15 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
 
     /* Search operations */
 
-    override fun <PSI : Any?> find(target: PSI) = CefMatch(super.find(target))
+    override fun <PSI : Any?> find(target: PSI) = super.find(target)?.let(::CefMatch)
     override fun <PSI : Any?> findAll(target: PSI) =
             super.findAll(target).asSequence().toList().map(::CefMatch).iterator()
 
-    override fun <PSI : Any?> wait(target: PSI) = CefMatch(super.wait(target))
-    override fun <PSI : Any?> wait(target: PSI, timeout: Double) = CefMatch(super.wait(target, timeout))
+    override fun <PSI : Any?> wait(target: PSI) = super.wait(target).let(::CefMatch)
+    override fun <PSI : Any?> wait(target: PSI, timeout: Double) = super.wait(target, timeout)?.let(::CefMatch)
 
-    override fun <PSI : Any?> exists(target: PSI) = CefMatch(super.exists(target))
-    override fun <PSI : Any?> exists(target: PSI, timeout: Double) = CefMatch(super.exists(target, timeout))
+    override fun <PSI : Any?> exists(target: PSI) = super.exists(target)?.let(::CefMatch)
+    override fun <PSI : Any?> exists(target: PSI, timeout: Double) = super.exists(target, timeout)?.let(::CefMatch)
 
     //<editor-fold desc="Mouse and KeyboardActions">
     override fun click(): Int = click(center, 0)
@@ -96,8 +96,10 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     override fun <PFRML : Any?> click(target: PFRML): Int = click(target, 0)
     override fun <PFRML : Any?> click(target: PFRML, modifiers: Int): Int =
             try {
-                mouse.click(getLocationFromTarget(target), Mouse.LEFT, modifiers)
-                1
+                getLocationFromTarget(target)?.let {
+                    mouse.click(it, Mouse.LEFT, modifiers)
+                    1
+                } ?: 0
             } catch (e: FindFailed) {
                 0
             }
@@ -107,8 +109,10 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     override fun <PFRML : Any?> doubleClick(target: PFRML): Int = doubleClick(target, 0)
     override fun <PFRML : Any?> doubleClick(target: PFRML, modifiers: Int): Int =
             try {
-                mouse.doubleClick(getLocationFromTarget(target), Mouse.LEFT, modifiers)
-                1
+                getLocationFromTarget(target)?.let {
+                    mouse.doubleClick(it, Mouse.LEFT, modifiers)
+                    1
+                } ?: 0
             } catch (e: FindFailed) {
                 0
             }
@@ -118,8 +122,10 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     override fun <PFRML : Any?> rightClick(target: PFRML): Int = rightClick(target, 0)
     override fun <PFRML : Any?> rightClick(target: PFRML, modifiers: Int): Int =
             try {
-                mouse.click(getLocationFromTarget(target), Mouse.RIGHT, modifiers)
-                1
+                getLocationFromTarget(target)?.let {
+                    mouse.click(it, Mouse.RIGHT, modifiers)
+                    1
+                } ?: 0
             } catch (e: FindFailed) {
                 0
             }
@@ -127,19 +133,22 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     override fun hover(): Int = hover(center)
     override fun <PFRML : Any?> hover(target: PFRML): Int =
             try {
-                mouse.moveTo(getLocationFromTarget(target))
-                1
+                getLocationFromTarget(target)?.let {
+                    mouse.moveTo(it)
+                    1
+                } ?: 0
             } catch (e: FindFailed) {
                 0
             }
 
     override fun <PFRML : Any?> dragDrop(target: PFRML): Int = dragDrop(lastMatch, target)
 
-    override fun <PFRML : Any?> dragDrop(t1: PFRML, t2: PFRML): Int = mouse.dragDrop(getLocationFromTarget(t1), getLocationFromTarget(t2))
+    override fun <PFRML : Any?> dragDrop(t1: PFRML, t2: PFRML): Int =
+            getLocationFromTarget(t1)?.let { l1 -> getLocationFromTarget(t2)?.let { mouse.dragDrop(l1, it) } } ?: 0
 
-    override fun <PFRML : Any?> drag(target: PFRML): Int = mouse.drag(getLocationFromTarget(target))
+    override fun <PFRML : Any?> drag(target: PFRML): Int = getLocationFromTarget(target)?.let { mouse.drag(it) } ?: 0
 
-    override fun <PFRML : Any?> dropAt(target: PFRML): Int = mouse.dropAt(getLocationFromTarget(target))
+    override fun <PFRML : Any?> dropAt(target: PFRML): Int = getLocationFromTarget(target)?.let { mouse.dropAt(it) } ?: 0
 
     override fun type(text: String): Int = type(text, 0)
     override fun type(text: String, modifiers: String): Int = type(text, CefKeyBoard.parseModifiers(modifiers))
@@ -189,18 +198,21 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     override fun mouseMove(xoff: Int, yoff: Int): Int = mouseMove(Location(x + xoff, y + yoff))
     override fun <PFRML : Any?> mouseMove(target: PFRML): Int =
             try {
-                mouse.moveTo(getLocationFromTarget(target))
-                1
+                getLocationFromTarget(target)?.let {
+                    mouse.moveTo(it)
+                    1
+                } ?: 0
             } catch (e: FindFailed) {
                 0
             }
 
     override fun wheel(direction: Int, steps: Int): Int = wheel(mouse.getCurrentMouseLocation(), direction, steps)
     override fun <PFRML : Any?> wheel(target: PFRML, direction: Int, steps: Int): Int = wheel(target, direction, steps, Mouse.WHEEL_STEP_DELAY)
-    override fun <PFRML : Any?> wheel(target: PFRML, direction: Int, steps: Int, stepDelay: Int): Int {
-        mouse.spinWheel(getLocationFromTarget(target), direction, steps, stepDelay)
-        return 1
-    }
+    override fun <PFRML : Any?> wheel(target: PFRML, direction: Int, steps: Int, stepDelay: Int): Int =
+            getLocationFromTarget(target)?.let {
+                mouse.spinWheel(it, direction, steps, stepDelay)
+                1
+            } ?: 0
 
     override fun keyDown(keycode: Int) = keyboard.keyDown(keycode)
     override fun keyDown(keys: String) = keyboard.keyDown(keys)
@@ -236,12 +248,12 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
 
     //</editor-fold>
 
-    override fun <PSIMRL> getLocationFromTarget(target: PSIMRL): Location = when (target) {
-        is Pattern, is String, is Image -> find(target).target
+    override fun <PSIMRL> getLocationFromTarget(target: PSIMRL): Location? = when (target) {
+        is Pattern, is String, is Image -> find(target)?.target
         is Match -> target.target
         is CefRegion -> target.center
         is Region -> target.center
         is Location -> target
         else -> throw FindFailed("")
-    }.setOtherScreen(screen)
+    }?.setOtherScreen(screen)
 }

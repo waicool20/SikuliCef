@@ -129,12 +129,12 @@ class CefMatch(match: Match) : Match(match) {
     override fun highlight(secs: Int, color: String) = region.highlight(secs, color)
     //</editor-fold>
 
-    override fun <PSIMRL> getLocationFromTarget(target: PSIMRL): Location = when (target) {
-        is Pattern, is String, is Image -> find(target).target
+    override fun <PSIMRL> getLocationFromTarget(target: PSIMRL): Location? = when (target) {
+        is Pattern, is String, is Image -> find(target)?.target
         is Match -> target.target
         is CefRegion -> target.center
         is Region -> target.center
         is Location -> target
         else -> throw FindFailed("")
-    }.setOtherScreen(screen)
+    }?.setOtherScreen(screen)
 }
