@@ -51,7 +51,7 @@ class CefScreen(val browser: CefBrowser) : CefRegion(
     val uiComponent = run {
         val layeredPane = JLayeredPane()
         layeredPane.layout = LayeredLayout(layeredPane)
-        layeredPane.add(CefMouseCursor(this))
+        layeredPane.add(CefMouseCursor(this), Integer(JLayeredPane.DRAG_LAYER))
         layeredPane.add(browser.uiComponent)
         layeredPane
     }

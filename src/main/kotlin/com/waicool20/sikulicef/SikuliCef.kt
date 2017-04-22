@@ -84,6 +84,7 @@ fun main(args: Array<String>) {
         var match = screen.exists(Pattern("searchbar.png").exact(), 10.0)
         println("Match: $match")
         println("Attempting to type \"Hello SikuliCef\"")
+        match.highlight(5)
         match.click()
         match.type("Hello SikuliCef")
         match.type(Key.ENTER)

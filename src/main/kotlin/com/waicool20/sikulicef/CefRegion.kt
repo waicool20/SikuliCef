@@ -17,9 +17,14 @@
 
 package com.waicool20.sikulicef
 
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.delay
+import org.sikuli.basics.Settings
 import org.sikuli.script.*
 import java.awt.Rectangle
 import java.awt.event.KeyEvent
+import java.util.concurrent.TimeUnit
 
 open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScreen? = CefScreen.getScreen()) : Region() {
     constructor(region: Region, screen: IScreen? = CefScreen.getScreen()) : this(region.x, region.y, region.w, region.h, screen)
@@ -206,29 +211,29 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     //</editor-fold>
 
     //<editor-fold desc="Highlight Action">
-    override fun highlight(): Region {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
+    private val highlighter by lazy { CefHighlighter(this) }
 
-    override fun highlight(secs: Float): Region {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
-    override fun highlight(secs: Int): Region {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
-
+    override fun highlight(): Region = highlight("")
     override fun highlight(color: String): Region {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+        highlighter.setColor(color)
+        highlighter.toggle()
+        return this
     }
+
+    override fun highlight(secs: Int): Region = highlight(secs, "")
+    override fun highlight(secs: Float): Region = highlight(secs, "")
+    override fun highlight(secs: Int, color: String): Region = highlight(secs.toFloat(), color)
 
     override fun highlight(secs: Float, color: String): Region {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+        highlight(color)
+        async(CommonPool) {
+            delay((if (secs < 0.1) Settings.SlowMotionDelay else secs * 1000L).toLong(),
+                    TimeUnit.MILLISECONDS)
+            highlight()
+        }
+        return this
     }
 
-    override fun highlight(secs: Int, color: String): Region {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
-    }
     //</editor-fold>
 
     override fun <PSIMRL> getLocationFromTarget(target: PSIMRL): Location = when (target) {

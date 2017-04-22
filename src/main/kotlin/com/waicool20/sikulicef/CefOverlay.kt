@@ -18,6 +18,7 @@
 package com.waicool20.sikulicef
 
 import java.awt.Graphics
+import java.awt.Graphics2D
 import java.awt.event.*
 import java.awt.image.RasterFormatException
 import javax.media.opengl.GLAutoDrawable
@@ -76,7 +77,7 @@ open class CefOverlay(val screen: CefScreen) : GLCanvas(), GLEventListener {
         graphics.drawImage(image, 0, 0, this)
     }
 
-    open fun paintContent(graphics: Graphics) = Unit
+    open fun paintContent(graphics: Graphics2D) = Unit
 
     override fun reshape(p0: GLAutoDrawable?, p1: Int, p2: Int, p3: Int, p4: Int) {
         repaint()

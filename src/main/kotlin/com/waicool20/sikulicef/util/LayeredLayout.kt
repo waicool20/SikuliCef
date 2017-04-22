@@ -40,7 +40,7 @@ class LayeredLayout(val target: Container) : LayoutManager {
 
     override fun minimumLayoutSize(container: Container?): Dimension = Dimension(500, 500)
 
-    override fun addLayoutComponent(name: String?, component: Component?) = Unit
+    override fun addLayoutComponent(name: String, component: Component) = Unit
 
     override fun removeLayoutComponent(p0: Component?) = Unit
 }
