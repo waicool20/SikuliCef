@@ -26,39 +26,28 @@ object SystemUtils {
 
     fun loadLibrary(paths: List<Path>) {
         val separator = if (isWindows()) ";" else ":"
-        val currentLibs = System.getProperty("java.library.path").split(separator).toMutableSet()
-        val addLibs = paths
-                .map(Path::toAbsolutePath)
-                .map(Path::getParent)
-                .map(Path::toString)
-                .distinct()
-        currentLibs.addAll(addLibs)
+        val libs = System.getProperty("java.library.path").split(separator).toMutableSet()
+        libs.addAll(paths.map { it.toAbsolutePath().parent.toString() }.distinct())
 
-        System.setProperty("java.library.path", currentLibs.joinToString(separator))
+        System.setProperty("java.library.path", libs.joinToString(separator))
         with(ClassLoader::class.java.getDeclaredField("sys_paths")) {
             isAccessible = true
             set(null, null)
         }
     }
 
-    fun loadJarLibrary(jar: Path) {
-        val loader = ClassLoader.getSystemClassLoader() as URLClassLoader
-        val url = jar.toUri().toURL()
+    fun loadJarLibrary(jar: Path) = loadJarLibrary(listOf(jar))
 
-        try {
-            if (!loader.urLs.contains(url)) {
+    fun loadJarLibrary(jars: List<Path>) {
+        val loader = ClassLoader.getSystemClassLoader() as URLClassLoader
+        jars.map { it.toUri().toURL() }.forEach {
+            if (!loader.urLs.contains(it)) {
                 val method = URLClassLoader::class.java.getDeclaredMethod("addURL", URL::class.java)
                 method.isAccessible = true
-                method.invoke(loader, url)
+                method.invoke(loader, it)
             }
-        } catch (e: Exception) {
-            println("Exception occured while trying to add Jar library")
         }
     }
-
-    fun isWindows() = System.getProperty("os.name").toLowerCase().contains("win")
-    fun isLinux() = System.getProperty("os.name").toLowerCase().contains("linux")
-    fun isMac() = System.getProperty("os.name").toLowerCase().contains("mac")
 
     fun getMainClassName(): String {
         try {
@@ -67,6 +56,12 @@ object SystemUtils {
             return e.stackTrace.last().className
         }
     }
+
+    fun is32Bit() = !is64Bit()
+    fun is64Bit() = System.getProperty("os.arch").contains("64")
+    fun isWindows() = System.getProperty("os.name").toLowerCase().contains("win")
+    fun isLinux() = System.getProperty("os.name").toLowerCase().contains("linux")
+    fun isMac() = System.getProperty("os.name").toLowerCase().contains("mac")
 }
 
 

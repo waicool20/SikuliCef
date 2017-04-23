@@ -30,11 +30,12 @@ import java.nio.file.attribute.PosixFilePermission
 
 
 object CefAppLoader {
-    val codeSource: String = javaClass.protectionDomain.codeSource.location.toURI().path
+    val CODE_SOURCE: String = javaClass.protectionDomain.codeSource.location.toURI().path
     val CEF_DIR: Path = Paths.get(System.getProperty("user.home")).resolve(".cef")
-    val LIB_DIR: Path = if (codeSource.endsWith(".jar")) CEF_DIR else Paths.get("")
-    val MAC_FRAMEWORK_DIR: Path by lazy { LIB_DIR.resolve("jcef_app.app/Contents/Frameworks/Chromium Embedded Framework.framework/") }
-    val MAC_HELPER: Path by lazy { LIB_DIR.resolve("jcef_app.app/Contents/Frameworks/jcef Helper.app/Contents/MacOS/jcef Helper") }
+    val LIB_DIR: Path = if (CODE_SOURCE.endsWith(".jar")) CEF_DIR else Paths.get("")
+
+    private val MAC_FRAMEWORK_DIR: Path by lazy { LIB_DIR.resolve("jcef_app.app/Contents/Frameworks/Chromium Embedded Framework.framework/") }
+    private val MAC_HELPER: Path by lazy { LIB_DIR.resolve("jcef_app.app/Contents/Frameworks/jcef Helper.app/Contents/MacOS/jcef Helper") }
 
     init {
         loadBinaries()
@@ -50,9 +51,11 @@ object CefAppLoader {
             if (Files.notExists(fakeJvmBin.resolve("icudtl.dat"))) {
                 Files.createDirectories(fakeJvmBin)
                 Files.copy(JRE_PATH.resolve("bin/java"), fakeJvmBin.resolve("java"))
-                Files.copy(javaClass.classLoader.getResourceAsStream("java-cef-res/binaries/icudtl.dat"), fakeJvmBin.resolve("icudtl.dat"))
-                Files.copy(javaClass.classLoader.getResourceAsStream("java-cef-res/binaries/natives_blob.bin"), fakeJvmBin.resolve("natives_blob.bin"))
-                Files.copy(javaClass.classLoader.getResourceAsStream("java-cef-res/binaries/snapshot_blob.bin"), fakeJvmBin.resolve("snapshot_blob.bin"))
+                with (javaClass.classLoader) {
+                    Files.copy(getResourceAsStream("java-cef-res/binaries/icudtl.dat"), fakeJvmBin.resolve("icudtl.dat"))
+                    Files.copy(getResourceAsStream("java-cef-res/binaries/natives_blob.bin"), fakeJvmBin.resolve("natives_blob.bin"))
+                    Files.copy(getResourceAsStream("java-cef-res/binaries/snapshot_blob.bin"), fakeJvmBin.resolve("snapshot_blob.bin"))
+                }
                 Files.createSymbolicLink(fakeJvm.resolve("lib"), JRE_PATH.resolve("lib"))
             }
             if (System.getenv("fakeJvm").isNullOrEmpty()) {
@@ -68,8 +71,8 @@ object CefAppLoader {
     }
 
     private fun loadLibraries() {
-        if (codeSource.endsWith(".jar")) {
-            val jarURI = URI.create("jar:file:$codeSource")
+        if (CODE_SOURCE.endsWith(".jar")) {
+            val jarURI = URI.create("jar:file:$CODE_SOURCE")
             val env = mapOf(
                     "create" to "false",
                     "encoding" to "UTF-8"
@@ -81,10 +84,10 @@ object CefAppLoader {
                         .filter { it.nameCount > 1 }
                         .map { it to LIB_DIR.resolve((if (it.nameCount > 2) it.subpath(1, it.nameCount) else it.fileName).toString().replace(".jarpak", ".jar")) }
                         .forEach {
-                            Files.copy(it.first, it.second)
+                            if (Files.notExists(it.second)) Files.copy(it.first, it.second)
                             if (!SystemUtils.isWindows()) {
                                 val perms = Files.getPosixFilePermissions(it.second).toMutableSet()
-                                perms.addAll(listOf(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.GROUP_EXECUTE, PosixFilePermission.OTHERS_EXECUTE))
+                                perms.addAll(listOf(PosixFilePermission.OWNER_EXECUTE))
                                 Files.setPosixFilePermissions(it.second, perms)
                             }
                         }
@@ -92,7 +95,14 @@ object CefAppLoader {
         }
 
         Files.walk(LIB_DIR)
-                .filter { it.toString().matches(".*\\.(so|dll|dylib)".toRegex()) }
+                .filter {
+                    when {
+                        SystemUtils.isLinux() -> it.toString().endsWith(".so")
+                        SystemUtils.isMac() -> it.toString().endsWith(".dll")
+                        SystemUtils.isWindows() -> it.toString().endsWith(".dylib")
+                        else -> false
+                    }
+                }
                 .peek { SystemUtils.loadLibrary(it) } // Add to library path first
                 .forEach {
                     try {
@@ -107,9 +117,7 @@ object CefAppLoader {
                 .forEach {
                     SystemUtils.loadJarLibrary(it)
                 }
-        if (SystemUtils.isMac()) {
-            System.load(MAC_FRAMEWORK_DIR.resolve("Chromium Embedded Framework").toString())
-        }
+        if (SystemUtils.isMac()) System.load(MAC_FRAMEWORK_DIR.resolve("Chromium Embedded Framework").toString())
     }
 
     fun load(args: Array<String> = arrayOf<String>(), cefSettings: CefSettings = CefSettings()): CefApp {
@@ -120,8 +128,7 @@ object CefAppLoader {
         }
         CefApp.addAppHandler(object : CefAppHandlerAdapter(arguments.toTypedArray()) {
             override fun stateHasChanged(state: CefApp.CefAppState) {
-                if (state == CefApp.CefAppState.TERMINATED)
-                    System.exit(0)
+                if (state == CefApp.CefAppState.TERMINATED) System.exit(0)
             }
         })
         return CefApp.getInstance(arguments.toTypedArray(), cefSettings)
