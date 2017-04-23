@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.sikulicef
+package com.waicool20.sikulicef.input
 
 import org.sikuli.basics.Settings
 import org.sikuli.script.Location

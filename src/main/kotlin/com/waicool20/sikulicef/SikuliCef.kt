@@ -18,9 +18,9 @@
 package com.waicool20.sikulicef
 
 import com.waicool20.sikulicef.util.CefAppLoader
+import com.waicool20.sikulicef.wrappers.CefScreen
 import org.cef.CefApp
 import org.cef.browser.CefBrowser
-import org.cef.handler.CefAppHandlerAdapter
 import org.cef.handler.CefLoadHandlerAdapter
 import org.sikuli.script.ImagePath
 import org.sikuli.script.Key

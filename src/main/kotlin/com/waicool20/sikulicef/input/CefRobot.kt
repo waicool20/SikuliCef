@@ -15,8 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.sikulicef
+package com.waicool20.sikulicef.input
 
+import com.waicool20.sikulicef.wrappers.CefScreen
 import org.sikuli.basics.AnimatorOutQuarticEase
 import org.sikuli.basics.AnimatorTimeBased
 import org.sikuli.basics.Settings

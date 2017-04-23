@@ -15,8 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.sikulicef
+package com.waicool20.sikulicef.wrappers
 
+import com.waicool20.sikulicef.graphical.CefHighlighter
+import com.waicool20.sikulicef.input.CefKeyBoard
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay

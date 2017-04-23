@@ -15,8 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.sikulicef
+package com.waicool20.sikulicef.wrappers
 
+import com.waicool20.sikulicef.input.CefKeyBoard
+import com.waicool20.sikulicef.input.CefMouse
+import com.waicool20.sikulicef.graphical.CefMouseCursor
+import com.waicool20.sikulicef.input.CefRobot
 import com.waicool20.sikulicef.util.LayeredLayout
 import org.cef.browser.CefBrowser
 import org.sikuli.basics.Settings
@@ -38,7 +42,7 @@ class CefScreen(val browser: CefBrowser) : CefRegion(
     }
 
     init {
-        Factory.screens.putIfAbsent(getIdentifier(), this)
+        screens.putIfAbsent(getIdentifier(), this)
         screen = this
         isVirtual = true
         setOtherScreen(this)

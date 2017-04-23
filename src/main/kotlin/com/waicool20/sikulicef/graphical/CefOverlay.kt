@@ -15,8 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.sikulicef
+package com.waicool20.sikulicef.graphical
 
+import com.waicool20.sikulicef.wrappers.CefScreen
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.event.*

@@ -17,7 +17,7 @@
 
 package com.waicool20.sikulicef.util
 
-import com.waicool20.sikulicef.CefRegion
+import com.waicool20.sikulicef.wrappers.CefRegion
 import com.waicool20.sikulicef.util.nextLong
 import com.waicool20.sikulicef.util.nextSign
 import org.sikuli.basics.Settings

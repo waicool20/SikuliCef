@@ -17,7 +17,7 @@
 
 package com.waicool20.sikulicef.util
 
-import com.waicool20.sikulicef.CefOverlay
+import com.waicool20.sikulicef.graphical.CefOverlay
 import java.awt.Component
 import java.awt.Container
 import java.awt.Dimension
