@@ -17,7 +17,7 @@
 
 package com.waicool20.sikulicef
 
-import com.waicool20.sikulicef.util.CefResourceLoader
+import com.waicool20.sikulicef.util.CefAppLoader
 import org.cef.CefApp
 import org.cef.browser.CefBrowser
 import org.cef.handler.CefAppHandlerAdapter
@@ -34,8 +34,6 @@ import javax.imageio.ImageIO
 import javax.swing.JFrame
 
 fun main(args: Array<String>) {
-    CefResourceLoader.load()
-
     val argsList = arrayOf(
             *args,
             "--ppapi-flash-path=${Paths.get("/usr/lib/PepperFlash/libpepflashplayer.so")}",
@@ -43,14 +41,8 @@ fun main(args: Array<String>) {
             "--disable-overlay-scrollbar",
             "--hide-scrollbars"
     )
-    CefApp.addAppHandler(object : CefAppHandlerAdapter(argsList) {
-        override fun stateHasChanged(state: CefApp.CefAppState) {
-            if (state == CefApp.CefAppState.TERMINATED)
-                System.exit(0)
-        }
-    })
 
-    val cefApp = CefApp.getInstance(argsList)
+    val cefApp = CefAppLoader.load(argsList)
     val client = cefApp.createClient()
 
     client.addLoadHandler(object : CefLoadHandlerAdapter() {

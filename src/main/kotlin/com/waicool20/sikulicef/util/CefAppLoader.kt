@@ -17,17 +17,28 @@
 
 package com.waicool20.sikulicef.util
 
+import org.cef.CefApp
+import org.cef.CefSettings
+import org.cef.handler.CefAppHandlerAdapter
 import java.net.URI
 import java.nio.file.FileSystems
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.attribute.PosixFilePermission
 
 
-object CefResourceLoader {
-    fun load() {
-        val codeSource = javaClass.protectionDomain.codeSource.location.toURI().path
-        val libDir = if (codeSource.endsWith(".jar")) Files.createTempDirectory("java-cef-res") else Paths.get("")
+object CefAppLoader {
+    val codeSource: String = javaClass.protectionDomain.codeSource.location.toURI().path
+    val libDir: Path = if (codeSource.endsWith(".jar")) Files.createTempDirectory("java-cef-res") else Paths.get("")
+    val MAC_FRAMEWORK_DIR: Path by lazy { libDir.resolve("jcef_app.app/Contents/Frameworks/Chromium Embedded Framework.framework/") }
+    val MAC_HELPER_DIR: Path by lazy { libDir.resolve("jcef_app.app/Contents/Frameworks/jcef Helper.app/Contents/MacOS/jcef Helper") }
+
+    init {
+        loadLibraries()
+    }
+
+    private fun loadLibraries() {
         if (codeSource.endsWith(".jar")) {
             val jarURI = URI.create("jar:file:$codeSource")
             val env = mapOf(
@@ -74,7 +85,22 @@ object CefResourceLoader {
                 }
 
         if (SystemUtils.isMac()) {
-            System.load(libDir.resolve("jcef_app.app/Contents/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework").toString())
+            System.load(MAC_FRAMEWORK_DIR.resolve("Chromium Embedded Framework").toString())
         }
+    }
+
+    fun load(args: Array<String> = arrayOf<String>(), cefSettings: CefSettings = CefSettings()): CefApp {
+        val arguments = args.toMutableList()
+        if (SystemUtils.isMac()) {
+            arguments.add("--framework-dir-path=$MAC_FRAMEWORK_DIR")
+            arguments.add("--browser-subprocess-path=$MAC_HELPER_DIR")
+        }
+        CefApp.addAppHandler(object : CefAppHandlerAdapter(arguments.toTypedArray()) {
+            override fun stateHasChanged(state: CefApp.CefAppState) {
+                if (state == CefApp.CefAppState.TERMINATED)
+                    System.exit(0)
+            }
+        })
+        return CefApp.getInstance(arguments.toTypedArray(), cefSettings)
     }
 }
