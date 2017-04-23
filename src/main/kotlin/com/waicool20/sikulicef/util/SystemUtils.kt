@@ -59,6 +59,14 @@ object SystemUtils {
     fun isWindows() = System.getProperty("os.name").toLowerCase().contains("win")
     fun isLinux() = System.getProperty("os.name").toLowerCase().contains("linux")
     fun isMac() = System.getProperty("os.name").toLowerCase().contains("mac")
+
+    fun getMainClassName(): String {
+        try {
+            throw Exception()
+        } catch (e: Exception) {
+            return e.stackTrace.last().className
+        }
+    }
 }
 
 

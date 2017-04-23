@@ -49,8 +49,18 @@ task copyBinaryDistrib(type: Copy) {
     into libraryResDir + "java-cef-res"
 }
 
+task copyBinaryDistribBinaries(type: Copy) {
+    from (fileTree(binaryDistribDir + "/bin/").files) {
+        exclude("**/tests")
+        include("**/icudtl.dat")
+        include("**/natives_blob.bin")
+        include("**/snapshot_blob.bin")
+    }
+    into libraryResDir + "java-cef-res/binaries"
+}
+
 defaultTasks 'build'
-processResources.dependsOn(copyBinaryDistrib)
+processResources.dependsOn([copyBinaryDistrib, copyBinaryDistribBinaries])
 build.finalizedBy(shadowJar)
 jar.enabled = false
 
