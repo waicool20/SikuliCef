@@ -96,7 +96,9 @@ class CefMouse(val robot: CefRobot) {
         Settings.DelayBeforeDrop = Settings.DelayValue
     }
 
-    @Synchronized
+    @Synchronized inline fun <T> atomicAction(action: () -> T): T = synchronized(this) { action() }
+
     fun getCurrentMouseLocation() = robot.getCurrentMouseLocation()
+
 
 }

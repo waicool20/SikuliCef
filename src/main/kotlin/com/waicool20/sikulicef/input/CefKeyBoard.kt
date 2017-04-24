@@ -62,4 +62,6 @@ class CefKeyBoard(val robot: CefRobot) {
 
     @Synchronized fun keyDown(keycode: Int) = synchronized(this) { robot.keyDown(keycode) }
     @Synchronized fun keyDown(keys: String) = synchronized(this) { robot.keyDown(keys) }
+
+    @Synchronized inline fun <T> atomicAction(action: () -> T): T = synchronized(this) { action() }
 }

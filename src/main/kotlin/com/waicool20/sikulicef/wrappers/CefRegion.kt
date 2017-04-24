@@ -177,10 +177,12 @@ open class CefRegion(xPos: Int, yPos: Int, width: Int, height: Int, screen: IScr
     override fun <PFRML : Any?> paste(target: PFRML, text: String): Int {
         if (text.isEmpty() || (target != null && click(target) == 1)) return 1
         (screen as CefScreen).clipboard = text
-        keyDown(Key.getHotkeyModifier())
-        keyDown(KeyEvent.VK_V)
-        keyUp(KeyEvent.VK_V)
-        keyUp(Key.getHotkeyModifier())
+        keyboard.atomicAction {
+            keyDown(Key.getHotkeyModifier())
+            keyDown(KeyEvent.VK_V)
+            keyUp(KeyEvent.VK_V)
+            keyUp(Key.getHotkeyModifier())
+        }
         return 0
     }
     //</editor-fold>
