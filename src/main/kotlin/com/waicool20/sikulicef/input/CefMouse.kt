@@ -23,6 +23,7 @@ import org.sikuli.script.Mouse
 
 
 class CefMouse(val robot: CefRobot) {
+    @Synchronized
     fun click(location: Location, buttons: Int, modifiers: Int) = synchronized(this) {
         moveTo(location)
         val pause = if (Settings.ClickDelay > 1) 1 else (Settings.ClickDelay * 1000).toInt()
@@ -34,20 +35,25 @@ class CefMouse(val robot: CefRobot) {
         Settings.ClickDelay = 0.0
     }
 
+    @Synchronized
     fun doubleClick(location: Location, buttons: Int, modifiers: Int) = synchronized(this) {
         repeat(2) {
             click(location, buttons, modifiers)
         }
     }
 
+    @Synchronized
     fun moveTo(location: Location) = synchronized(this) { robot.smoothMove(location) }
 
     /* Low level actions */
 
+    @Synchronized
     fun mouseDown(buttons: Int) = synchronized(this) { robot.mouseDown(buttons) }
 
+    @Synchronized
     fun mouseUp(buttons: Int = 0): Int = synchronized(this) { robot.mouseUp(buttons) }
 
+    @Synchronized
     fun spinWheel(location: Location, direction: Int, steps: Int, stepDelay: Int) = synchronized(this) {
         moveTo(location)
         repeat(steps) {
@@ -56,6 +62,7 @@ class CefMouse(val robot: CefRobot) {
         }
     }
 
+    @Synchronized
     fun drag(location: Location, resetDelays: Boolean = true) = synchronized(this) {
         moveTo(location)
         robot.delay((Settings.DelayBeforeMouseDown * 1000).toInt())
@@ -65,6 +72,7 @@ class CefMouse(val robot: CefRobot) {
         1
     }
 
+    @Synchronized
     fun dropAt(location: Location, resetDelays: Boolean = true) = synchronized(this) {
         moveTo(location)
         robot.delay((Settings.DelayBeforeDrop * 1000).toInt())
@@ -73,12 +81,14 @@ class CefMouse(val robot: CefRobot) {
         1
     }
 
+    @Synchronized
     fun dragDrop(loc1: Location, loc2: Location) = synchronized(this) {
         drag(loc1, false)
         dropAt(loc2)
         1
     }
 
+    @Synchronized
     private fun resetDragDelays() {
         Settings.DelayBeforeMouseDown = Settings.DelayValue
         Settings.DelayAfterDrag = Settings.DelayValue
@@ -86,6 +96,7 @@ class CefMouse(val robot: CefRobot) {
         Settings.DelayBeforeDrop = Settings.DelayValue
     }
 
+    @Synchronized
     fun getCurrentMouseLocation() = robot.getCurrentMouseLocation()
 
 }

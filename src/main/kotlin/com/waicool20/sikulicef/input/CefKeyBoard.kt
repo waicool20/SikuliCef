@@ -43,6 +43,7 @@ class CefKeyBoard(val robot: CefRobot) {
         }
     }
 
+    @Synchronized
     fun type(location: Location?, text: String, modifiers: Int) = synchronized(this) {
         if (location != null) robot.screen.click(location)
         val pause = if (Settings.TypeDelay > 1) 1 else (Settings.TypeDelay * 1000).toInt()
@@ -54,10 +55,11 @@ class CefKeyBoard(val robot: CefRobot) {
         Settings.TypeDelay = 0.0
     }
 
-    fun keyUp() = synchronized(this) { robot.keyUp() }
-    fun keyUp(keycode: Int) = synchronized(this) { robot.keyUp(keycode) }
-    fun keyUp(keys: String) = synchronized(this) { robot.keyUp(keys) }
 
-    fun keyDown(keycode: Int) = synchronized(this) { robot.keyDown(keycode) }
-    fun keyDown(keys: String) = synchronized(this) { robot.keyDown(keys) }
+    @Synchronized fun keyUp() = synchronized(this) { robot.keyUp() }
+    @Synchronized fun keyUp(keycode: Int) = synchronized(this) { robot.keyUp(keycode) }
+    @Synchronized fun keyUp(keys: String) = synchronized(this) { robot.keyUp(keys) }
+
+    @Synchronized fun keyDown(keycode: Int) = synchronized(this) { robot.keyDown(keycode) }
+    @Synchronized fun keyDown(keys: String) = synchronized(this) { robot.keyDown(keys) }
 }
