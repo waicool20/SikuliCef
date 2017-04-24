@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 buildscript {
     ext.kotlin_version = '1.1.1'
     repositories {
@@ -38,19 +40,24 @@ version '1.0'
 sourceCompatibility = 1.8
 
 def binaryDistribDir = "java-cef-framebuffer/binary_distrib/" + getOSString()
-def libraryResDir = "./java-cef-res/"
+def libraryResDir = "src/resources/"
 
 task copyBinaryDistrib(type: Copy) {
-    from (binaryDistribDir + "/bin/") {
+    from(binaryDistribDir + "/bin/") {
         exclude("**/tests")
         exclude("**/jcef-tests.jar")
+        if (isLinux()) {
+            exclude("**/icudtl.dat")
+            exclude("**/natives_blob.bin")
+            exclude("**/snapshot_blob.bin")
+        }
         rename('(.*).jar', '$1.jarpak')
     }
     into libraryResDir + "java-cef-res"
 }
 
 task copyBinaryDistribBinaries(type: Copy) {
-    from (fileTree(binaryDistribDir + "/bin/").files) {
+    from(fileTree(binaryDistribDir + "/bin/").files) {
         exclude("**/tests")
         include("**/icudtl.dat")
         include("**/natives_blob.bin")
@@ -59,8 +66,16 @@ task copyBinaryDistribBinaries(type: Copy) {
     into libraryResDir + "java-cef-res/binaries"
 }
 
+task stripSymbols(type: Exec) {
+    setExecutable("find")
+    setArgs([".", "-name", "libcef.so", "-exec", "strip", "{}", ";"])
+    setWorkingDir(libraryResDir)
+    setIgnoreExitValue(true)
+}
+
 defaultTasks 'build'
-processResources.dependsOn([copyBinaryDistrib, copyBinaryDistribBinaries])
+processResources.dependsOn(copyBinaryDistrib)
+if (isLinux()) processResources.dependsOn(stripSymbols, copyBinaryDistribBinaries)
 build.finalizedBy(shadowJar)
 jar.enabled = false
 
@@ -81,9 +96,9 @@ dependencies {
         exclude group: "com.sikulix"
         exclude module: 'jadb'
     }
-    compile(group: "com.sikulix", name: "sikulixlibslux", version: "1.1.1-SNAPSHOT")
-    compile(group: "com.sikulix", name: "sikulixlibsmac", version: "1.1.1-SNAPSHOT")
-    compile(group: "com.sikulix", name: "sikulixlibswin", version: "1.1.1-SNAPSHOT")
+    if (isLinux()) compile(group: "com.sikulix", name: "sikulixlibslux", version: "1.1.1-SNAPSHOT")
+    if (isMac()) compile(group: "com.sikulix", name: "sikulixlibsmac", version: "1.1.1-SNAPSHOT")
+    if (isWindows()) compile(group: "com.sikulix", name: "sikulixlibswin", version: "1.1.1-SNAPSHOT")
 
     /* java-cef libs */
 
@@ -99,6 +114,20 @@ dependencies {
     /*----- Testing ------*/
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompileOnly(files(getJarLibraryDir(binaryDistribDir) + "gluegen-rt.jar"))
+    testCompileOnly(files(getJarLibraryDir(binaryDistribDir) + "gluegen-rt-natives-" + getJogampVersion() + ".jar"))
+    testCompileOnly(files(getJarLibraryDir(binaryDistribDir) + "jcef.jar"))
+    testCompileOnly(files(getJarLibraryDir(binaryDistribDir) + "jogl-all.jar"))
+    testCompileOnly(files(getJarLibraryDir(binaryDistribDir) + "jogl-all-natives-" + getJogampVersion() + ".jar"))
+}
+
+sourceSets {
+    main.resources {
+        srcDir libraryResDir
+    }
+    test.resources {
+        srcDir libraryResDir
+    }
 }
 
 kotlin {
@@ -107,15 +136,11 @@ kotlin {
     }
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDir libraryResDir
-        }
-    }
-}
-
-jar {
+task testJar(type: ShadowJar) {
+    classifier 'test'
+    from sourceSets.main.output.classesDir
+    from sourceSets.test.output
+    configurations = [project.configurations.testRuntime]
     manifest {
         attributes 'Main-Class': 'com.waicool20.sikulicef.SikuliCefKt'
     }

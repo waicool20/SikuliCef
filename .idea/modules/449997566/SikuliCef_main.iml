@@ -53,13 +53,13 @@
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file:///media/Storage/Programming/java/SikuliCef/build/classes/main" />
     <exclude-output />
-    <content url="file:///media/Storage/Programming/java/SikuliCef/java-cef-res">
-      <sourceFolder url="file:///media/Storage/Programming/java/SikuliCef/java-cef-res" type="java-resource" />
-    </content>
     <content url="file:///media/Storage/Programming/java/SikuliCef/src/main">
       <sourceFolder url="file:///media/Storage/Programming/java/SikuliCef/src/main/java" isTestSource="false" />
       <sourceFolder url="file:///media/Storage/Programming/java/SikuliCef/src/main/kotlin" isTestSource="false" />
       <sourceFolder url="file:///media/Storage/Programming/java/SikuliCef/src/main/resources" type="java-resource" />
+    </content>
+    <content url="file:///media/Storage/Programming/java/SikuliCef/src/resources">
+      <sourceFolder url="file:///media/Storage/Programming/java/SikuliCef/src/resources" type="java-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -69,8 +69,6 @@
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core:0.14" level="project" />
     <orderEntry type="library" name="Gradle: com.sikulix:sikulixapi:1.1.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Gradle: com.sikulix:sikulixlibslux:1.1.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Gradle: com.sikulix:sikulixlibsmac:1.1.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Gradle: com.sikulix:sikulixlibswin:1.1.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.1.8" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.1.1" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jre7:1.1.1" level="project" />
@@ -89,7 +87,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library>
         <CLASSES>
-          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/gluegen-rt-natives-linux-amd64.jar!/" />
+          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/gluegen-rt.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -98,7 +96,16 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library>
         <CLASSES>
-          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/gluegen-rt.jar!/" />
+          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/jogl-all.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/gluegen-rt-natives-linux-amd64.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -117,15 +124,6 @@
       <library>
         <CLASSES>
           <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/jcef.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library>
-        <CLASSES>
-          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/jogl-all.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

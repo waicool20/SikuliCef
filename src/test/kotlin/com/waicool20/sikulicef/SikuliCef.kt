@@ -96,5 +96,4 @@ fun main(args: Array<String>) {
 
         ImageIO.write(browser.currentFrameBuffer, "png", Paths.get("screenshot.png").toFile())
     }.start()
-
 }
