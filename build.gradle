@@ -46,11 +46,6 @@ task copyBinaryDistrib(type: Copy) {
     from(binaryDistribDir + "/bin/") {
         exclude("**/tests")
         exclude("**/jcef-tests.jar")
-        if (isLinux()) {
-            exclude("**/icudtl.dat")
-            exclude("**/natives_blob.bin")
-            exclude("**/snapshot_blob.bin")
-        }
         rename('(.*).jar', '$1.jarpak')
     }
     into libraryResDir + "java-cef-res"

@@ -32,10 +32,16 @@ import java.nio.file.attribute.PosixFilePermission
 object CefAppLoader {
     val CODE_SOURCE: String = javaClass.protectionDomain.codeSource.location.toURI().path
     val CEF_DIR: Path = Paths.get(System.getProperty("user.home")).resolve(".cef")
-    val LIB_DIR: Path = if (CODE_SOURCE.endsWith(".jar")) CEF_DIR else Paths.get("")
+    val LIB_DIR: Path = if (CODE_SOURCE.endsWith(".jar")) CEF_DIR else Paths.get("src/resources")
 
     private val MAC_FRAMEWORK_DIR: Path by lazy { LIB_DIR.resolve("jcef_app.app/Contents/Frameworks/Chromium Embedded Framework.framework/") }
     private val MAC_HELPER: Path by lazy { LIB_DIR.resolve("jcef_app.app/Contents/Frameworks/jcef Helper.app/Contents/MacOS/jcef Helper") }
+
+    private val JVM: Path by lazy { Paths.get(System.getProperty("java.home")) }
+    private val FAKE_JVM: Path by lazy { CEF_DIR.resolve("fakejvm") }
+    private val FAKE_JVM_BIN: Path by lazy { FAKE_JVM.resolve("bin") }
+
+    private val BINARIES by lazy { listOf("icudtl.dat", "natives_blob.bin", "snapshot_blob.bin") }
 
     init {
         loadBinaries()
@@ -45,30 +51,24 @@ object CefAppLoader {
     private fun loadBinaries() {
         // Hack for icudtl.dat discovery on linux
         if (SystemUtils.isLinux()) {
-            val fakeJvm = CEF_DIR.resolve("fakejvm")
-            val fakeJvmBin = fakeJvm.resolve("bin")
-            val JRE_PATH = Paths.get(System.getProperty("java.home"))
-            if (Files.notExists(fakeJvmBin.resolve("icudtl.dat"))) {
-                Files.createDirectories(fakeJvmBin)
-                Files.copy(JRE_PATH.resolve("bin/java"), fakeJvmBin.resolve("java"))
-                with (javaClass.classLoader) {
-                    Files.copy(getResourceAsStream("java-cef-res/binaries/icudtl.dat"), fakeJvmBin.resolve("icudtl.dat"))
-                    Files.copy(getResourceAsStream("java-cef-res/binaries/natives_blob.bin"), fakeJvmBin.resolve("natives_blob.bin"))
-                    Files.copy(getResourceAsStream("java-cef-res/binaries/snapshot_blob.bin"), fakeJvmBin.resolve("snapshot_blob.bin"))
-                }
-                Files.createSymbolicLink(fakeJvm.resolve("lib"), JRE_PATH.resolve("lib"))
+            Files.createDirectories(FAKE_JVM_BIN)
+            FAKE_JVM_BIN.resolve("java").let { if (Files.notExists(it)) Files.copy(JVM.resolve("bin/java"), it) }
+            BINARIES.forEach { bin ->
+                FAKE_JVM_BIN.resolve(bin).let { if (Files.notExists(it)) Files.copy(javaClass.classLoader.getResourceAsStream("java-cef-res/binaries/$bin"), it) }
             }
+            FAKE_JVM.resolve("lib").let { if (Files.notExists(it)) Files.createSymbolicLink(it, JVM.resolve("lib")) }
             if (System.getenv("fakeJvm").isNullOrEmpty()) {
                 val cp = (ClassLoader.getSystemClassLoader() as URLClassLoader).urLs.map { it.toString().replace("file:", "") }.joinToString(":")
-                with(ProcessBuilder(fakeJvmBin.resolve("java").toString(), "-cp", cp, SystemUtils.getMainClassName())) {
+                with(ProcessBuilder(FAKE_JVM_BIN.resolve("java").toString(), "-cp", cp, SystemUtils.getMainClassName())) {
                     inheritIO()
-                    environment().put("fakeJvm", fakeJvm.toString())
+                    environment().put("fakeJvm", FAKE_JVM.toString())
                     start().waitFor()
                     System.exit(0)
                 }
             }
         }
     }
+
 
     private fun loadLibraries() {
         if (CODE_SOURCE.endsWith(".jar")) {
@@ -77,7 +77,7 @@ object CefAppLoader {
                     "create" to "false",
                     "encoding" to "UTF-8"
             )
-            if (Files.notExists(LIB_DIR)) Files.createDirectories(LIB_DIR)
+            Files.createDirectories(LIB_DIR)
             (FileSystems.newFileSystem(jarURI, env)).use { fs ->
                 Files.walk(fs.getPath("/java-cef-res"))
                         .filter { !it.startsWith("/java-cef-res/binaries/") }
@@ -112,11 +112,7 @@ object CefAppLoader {
                         // Ignore
                     }
                 }
-        Files.walk(LIB_DIR)
-                .filter { it.toString().endsWith(".jar") }
-                .forEach {
-                    SystemUtils.loadJarLibrary(it)
-                }
+        Files.walk(LIB_DIR).filter { it.toString().endsWith(".jar") }.forEach { SystemUtils.loadJarLibrary(it) }
         if (SystemUtils.isMac()) System.load(MAC_FRAMEWORK_DIR.resolve("Chromium Embedded Framework").toString())
     }
 
