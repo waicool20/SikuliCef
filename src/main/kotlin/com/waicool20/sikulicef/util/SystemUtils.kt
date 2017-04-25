@@ -49,11 +49,11 @@ object SystemUtils {
         }
     }
 
-    fun getMainClassName(): String {
+    val mainClassName: String by lazy {
         try {
             throw Exception()
         } catch (e: Exception) {
-            return e.stackTrace.last().className
+            e.stackTrace.last().className
         }
     }
 

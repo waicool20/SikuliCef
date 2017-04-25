@@ -104,11 +104,16 @@ dependencies {
     compileOnly(files(getJarLibraryDir(binaryDistribDir) + "jogl-all-natives-" + getJogampVersion() + ".jar"))
 
     /* logging */
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.8'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
 
     /*----- Testing ------*/
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
+
+    /* logging */
+    testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+
+    /* java-cef libs */
     testCompileOnly(files(getJarLibraryDir(binaryDistribDir) + "gluegen-rt.jar"))
     testCompileOnly(files(getJarLibraryDir(binaryDistribDir) + "gluegen-rt-natives-" + getJogampVersion() + ".jar"))
     testCompileOnly(files(getJarLibraryDir(binaryDistribDir) + "jcef.jar"))

@@ -20,6 +20,8 @@ package com.waicool20.sikulicef.util
 import org.cef.CefApp
 import org.cef.CefSettings
 import org.cef.handler.CefAppHandlerAdapter
+import org.slf4j.LoggerFactory
+import java.io.InputStream
 import java.net.URI
 import java.net.URLClassLoader
 import java.nio.file.FileSystems
@@ -43,6 +45,8 @@ object CefAppLoader {
 
     private val BINARIES by lazy { listOf("icudtl.dat", "natives_blob.bin", "snapshot_blob.bin") }
 
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     init {
         loadBinaries()
         loadLibraries()
@@ -52,23 +56,32 @@ object CefAppLoader {
         // Hack for icudtl.dat discovery on linux
         if (SystemUtils.isLinux()) {
             Files.createDirectories(FAKE_JVM_BIN)
-            FAKE_JVM_BIN.resolve("java").let { if (Files.notExists(it)) Files.copy(JVM.resolve("bin/java"), it) }
-            BINARIES.forEach { bin ->
-                FAKE_JVM_BIN.resolve(bin).let { if (Files.notExists(it)) Files.copy(javaClass.classLoader.getResourceAsStream("java-cef-res/binaries/$bin"), it) }
+            unpack(JVM.resolve("bin/java"), FAKE_JVM_BIN.resolve("java"))
+            BINARIES.forEach { unpack(javaClass.classLoader.getResourceAsStream("java-cef-res/binaries/$it"), FAKE_JVM_BIN.resolve(it)) }
+            FAKE_JVM.resolve("lib").let {
+                if (Files.notExists(it)) {
+                    val target = JVM.resolve("lib")
+                    logger.debug("[LINK] $it to $target")
+                    Files.createSymbolicLink(it, target)
+                }
             }
-            FAKE_JVM.resolve("lib").let { if (Files.notExists(it)) Files.createSymbolicLink(it, JVM.resolve("lib")) }
             if (System.getenv("fakeJvm").isNullOrEmpty()) {
+                val java = FAKE_JVM_BIN.resolve("java")
+                logger.debug("Not running under fake JVM")
+                logger.debug("Main class: ${SystemUtils.mainClassName}")
+                logger.debug("Fake JVM path: $java")
                 val cp = (ClassLoader.getSystemClassLoader() as URLClassLoader).urLs.map { it.toString().replace("file:", "") }.joinToString(":")
-                with(ProcessBuilder(FAKE_JVM_BIN.resolve("java").toString(), "-cp", cp, SystemUtils.getMainClassName())) {
+                with(ProcessBuilder(java.toString(), "-cp", cp, SystemUtils.mainClassName)) {
                     inheritIO()
                     environment().put("fakeJvm", FAKE_JVM.toString())
+                    logger.debug("Launching new instance with fake JVM")
                     start().waitFor()
                     System.exit(0)
                 }
             }
+            logger.debug("Running under fake JVM")
         }
     }
-
 
     private fun loadLibraries() {
         if (CODE_SOURCE.endsWith(".jar")) {
@@ -84,7 +97,7 @@ object CefAppLoader {
                         .filter { it.nameCount > 1 }
                         .map { it to LIB_DIR.resolve((if (it.nameCount > 2) it.subpath(1, it.nameCount) else it.fileName).toString().replace(".jarpak", ".jar")) }
                         .forEach {
-                            if (Files.notExists(it.second)) Files.copy(it.first, it.second)
+                            unpack(it.first, it.second)
                             if (!SystemUtils.isWindows()) {
                                 val perms = Files.getPosixFilePermissions(it.second).toMutableSet()
                                 perms.addAll(listOf(PosixFilePermission.OWNER_EXECUTE))
@@ -105,6 +118,7 @@ object CefAppLoader {
                 }
                 .peek { SystemUtils.loadLibrary(it) } // Add to library path first
                 .forEach {
+                    logger.debug("Loading library: $it")
                     try {
                         // Try loading it through System if possible, otherwise ignore and let CefApp take care of it
                         System.load(it.toAbsolutePath().toString())
@@ -112,18 +126,47 @@ object CefAppLoader {
                         // Ignore
                     }
                 }
-        Files.walk(LIB_DIR).filter { it.toString().endsWith(".jar") }.forEach { SystemUtils.loadJarLibrary(it) }
-        if (SystemUtils.isMac()) System.load(MAC_FRAMEWORK_DIR.resolve("Chromium Embedded Framework").toString())
+        Files.walk(LIB_DIR).filter { it.toString().endsWith(".jar") }.forEach {
+            logger.debug("Loading jar library $it")
+            SystemUtils.loadJarLibrary(it)
+        }
+        if (SystemUtils.isMac()) {
+            MAC_FRAMEWORK_DIR.resolve("Chromium Embedded Framework").let {
+                logger.debug("Loading library: $it")
+                System.load(it.toString())
+            }
+
+        }
+    }
+
+    private fun <T> unpack(source: T, target: Path) {
+        if (Files.notExists(target)) {
+            when (source) {
+                is Path -> {
+                    logger.debug("[COPY] $source to $target")
+                    Files.copy(source, target)
+                }
+                is InputStream -> {
+                    logger.debug("[UNPACKED] $target")
+                    Files.copy(source, target)
+                }
+                else -> throw IllegalArgumentException()
+            }
+
+        }
     }
 
     fun load(args: Array<String> = arrayOf<String>(), cefSettings: CefSettings = CefSettings()): CefApp {
         val arguments = args.toMutableList()
         if (SystemUtils.isMac()) {
+            arguments.removeIf { it.startsWith("--framework-dir-path") || it.startsWith("--browser-subprocess-path") }
             arguments.add("--framework-dir-path=$MAC_FRAMEWORK_DIR")
             arguments.add("--browser-subprocess-path=$MAC_HELPER")
         }
+        logger.debug("Using arguments: $arguments")
         CefApp.addAppHandler(object : CefAppHandlerAdapter(arguments.toTypedArray()) {
             override fun stateHasChanged(state: CefApp.CefAppState) {
+                logger.debug("CefApp state: $state")
                 if (state == CefApp.CefAppState.TERMINATED) System.exit(0)
             }
         })
