@@ -17,15 +17,16 @@
 
 package com.waicool20.sikulicef.graphical
 
-import com.waicool20.sikulicef.graphical.CefOverlay
 import com.waicool20.sikulicef.input.CefRobot
 import com.waicool20.sikulicef.wrappers.CefScreen
 import java.awt.Graphics2D
+import java.awt.MouseInfo
 import java.awt.Rectangle
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import javax.imageio.ImageIO
+import javax.swing.SwingUtilities
 
 class CefMouseCursor(screen: CefScreen) : CefOverlay(screen) {
     private val image = ImageIO.read(javaClass.classLoader.getResource("images/cursor.png"))
@@ -52,7 +53,10 @@ class CefMouseCursor(screen: CefScreen) : CefOverlay(screen) {
     }
 
     private fun updateBounds() {
-        val mouseLocation = (screen.robot as CefRobot).getCurrentMouseLocation()
-        bounds = Rectangle(mouseLocation.x + 1, mouseLocation.y + 1, image.width, image.height)
+        SwingUtilities.invokeLater {
+            isVisible = !(SwingUtilities.getRoot(screen.uiComponent)?.bounds?.contains(MouseInfo.getPointerInfo().location) ?: true)
+            val mouseLocation = (screen.robot as CefRobot).getCurrentMouseLocation()
+            bounds = Rectangle(mouseLocation.x + 1, mouseLocation.y + 1, image.width, image.height)
+        }
     }
 }

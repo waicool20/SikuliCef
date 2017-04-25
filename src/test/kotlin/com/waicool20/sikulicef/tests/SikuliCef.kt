@@ -15,17 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.sikulicef
+package com.waicool20.sikulicef.tests
 
 import com.waicool20.sikulicef.util.CefAppLoader
 import com.waicool20.sikulicef.wrappers.CefScreen
 import org.cef.CefApp
-import org.cef.browser.CefBrowser
-import org.cef.handler.CefLoadHandlerAdapter
 import org.sikuli.script.ImagePath
 import org.sikuli.script.Key
 import org.sikuli.script.Pattern
 import java.awt.BorderLayout
+import java.awt.Dimension
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.nio.file.Paths
@@ -44,19 +43,11 @@ fun main(args: Array<String>) {
 
     val cefApp = CefAppLoader.load(argsList)
     val client = cefApp.createClient()
-
-    client.addLoadHandler(object : CefLoadHandlerAdapter() {
-        override fun onLoadEnd(browser: CefBrowser?, frameIdentifier: Int, statusCode: Int) {
-            super.onLoadStart(browser, frameIdentifier)
-            browser?.executeJavaScript("document.body.style.overflow = \"hidden\"", "", 0)
-        }
-    })
-
     val browser = client.createBrowser("http://www.google.com", true, false)
     val screen = CefScreen(browser)
     val mainFrame = JFrame()
     mainFrame.contentPane.add(screen.uiComponent, BorderLayout.CENTER)
-    mainFrame.setSize(800, 600)
+    mainFrame.size = Dimension(800, 600)
     mainFrame.isVisible = true
 
     mainFrame.addWindowListener(object : WindowAdapter() {
@@ -66,6 +57,7 @@ fun main(args: Array<String>) {
         }
     })
 
+    println(ClassLoader.getSystemClassLoader().getResource("images"))
     Thread {
         ImagePath.add(ClassLoader.getSystemClassLoader().getResource("images"))
         while (browser.isLoading) {
@@ -83,7 +75,6 @@ fun main(args: Array<String>) {
         match?.highlight()
 
         /* Test Mouse */
-        TimeUnit.SECONDS.sleep(1)
         while (browser.isLoading) {
         }
         println("Browsers finished loading")

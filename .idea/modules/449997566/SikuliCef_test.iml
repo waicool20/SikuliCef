@@ -87,6 +87,24 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library>
         <CLASSES>
+          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/jogl-all-natives-linux-amd64.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/gluegen-rt.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
           <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/jogl-all.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -106,24 +124,6 @@
       <library>
         <CLASSES>
           <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/gluegen-rt-natives-linux-amd64.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library>
-        <CLASSES>
-          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/gluegen-rt.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library>
-        <CLASSES>
-          <root url="jar:///media/Storage/Programming/java/SikuliCef/java-cef-framebuffer/binary_distrib/linux64/bin/jogl-all-natives-linux-amd64.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
