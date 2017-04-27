@@ -25,6 +25,7 @@ import java.awt.image.RasterFormatException
 import javax.media.opengl.GLAutoDrawable
 import javax.media.opengl.GLEventListener
 import javax.media.opengl.awt.GLCanvas
+import javax.swing.JLayeredPane
 
 
 open class CefOverlay(val screen: CefScreen) : GLCanvas(), GLEventListener {
@@ -76,6 +77,15 @@ open class CefOverlay(val screen: CefScreen) : GLCanvas(), GLEventListener {
         }
         paintContent(image.createGraphics())
         graphics.drawImage(image, 0, 0, this)
+    }
+
+    override fun setVisible(isVisible: Boolean) {
+        if (isVisible) {
+            screen.uiComponent.let { if (!it.components.contains(this)) it.add(this, Integer(JLayeredPane.DRAG_LAYER - 10)) }
+        } else {
+            screen.uiComponent.let { if (it.components.contains(this)) screen.uiComponent.remove(this) }
+        }
+        super.setVisible(isVisible)
     }
 
     open fun paintContent(graphics: Graphics2D) = Unit

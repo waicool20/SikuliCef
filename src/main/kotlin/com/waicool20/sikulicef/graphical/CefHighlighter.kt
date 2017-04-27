@@ -32,10 +32,7 @@ class CefHighlighter(region: CefRegion, color: String? = "RED") : CefOverlay(reg
 
     init {
         setBounds(region.x, region.y, region.w, region.h)
-        SwingUtilities.invokeLater {
-            (region.screen as CefScreen).uiComponent.add(this, Integer(JLayeredPane.DRAG_LAYER - 10))
-            repaint()
-        }
+        reevaluate()
     }
 
     override fun paintContent(graphics: Graphics2D) {
@@ -48,12 +45,19 @@ class CefHighlighter(region: CefRegion, color: String? = "RED") : CefOverlay(reg
 
     fun toggle() {
         showing = !showing
-        repaint()
+        reevaluate()
     }
 
     fun setColor(color: String?) {
         this.color = parseColor(color)
-        repaint()
+        reevaluate()
+    }
+
+    private fun reevaluate() {
+        SwingUtilities.invokeLater {
+            isVisible = showing
+            repaint()
+        }
     }
 
     private fun parseColor(color: String?): Color {
