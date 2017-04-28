@@ -62,6 +62,7 @@ open class CefOverlay(val screen: CefScreen) : GLCanvas(), GLEventListener {
         browserUI.dispatchEvent(MouseEvent(this, event.id, event.`when`, event.modifiers,
                 event.x + x, event.y + y, event.clickCount, event.isPopupTrigger, event.button))
         cursor = browserUI.cursor
+        repaint()
     }
 
     override fun paint(graphics: Graphics) {
@@ -75,15 +76,17 @@ open class CefOverlay(val screen: CefScreen) : GLCanvas(), GLEventListener {
             graphics.clearRect(x, y, width, height)
             return
         }
-        paintContent(image.createGraphics())
+        val imageGraphics = image.createGraphics()
+        paintContent(imageGraphics)
         graphics.drawImage(image, 0, 0, this)
+        imageGraphics.dispose()
     }
 
     override fun setVisible(isVisible: Boolean) {
         if (isVisible) {
-            screen.uiComponent.let { if (!it.components.contains(this)) it.add(this, Integer(JLayeredPane.DRAG_LAYER - 10)) }
+            screen.uiComponent?.let { if (!it.components.contains(this)) it.add(this, Integer(JLayeredPane.DRAG_LAYER - 10)) }
         } else {
-            screen.uiComponent.let { if (it.components.contains(this)) screen.uiComponent.remove(this) }
+            screen.uiComponent?.let { if (it.components.contains(this)) screen.uiComponent.remove(this) }
         }
         super.setVisible(isVisible)
     }
