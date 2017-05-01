@@ -111,8 +111,8 @@ object CefAppLoader {
                 .filter {
                     when {
                         SystemUtils.isLinux() -> it.toString().endsWith(".so")
-                        SystemUtils.isMac() -> it.toString().endsWith(".dll")
-                        SystemUtils.isWindows() -> it.toString().endsWith(".dylib")
+                        SystemUtils.isMac() -> it.toString().endsWith(".dylib")
+                        SystemUtils.isWindows() -> it.toString().endsWith(".dll")
                         else -> false
                     }
                 }
