@@ -86,6 +86,7 @@ fun main(args: Array<String>) {
             logger.debug("Match: $match")
             logger.debug("Clicking $match")
             match.click()
+            TimeUnit.SECONDS.sleep(1) // Wait for javascript to settle
             "<div id=\"mouseTest\">(.*?)</div>".toRegex().find(browser.getSource())?.groupValues?.get(1)?.let {
                 if (it == "Clicked") {
                     logger.debug("Mouse test: PASS")
@@ -110,6 +111,7 @@ fun main(args: Array<String>) {
             val typeTest = "Hello SikuliCef"
             logger.debug("Attempting to type \"$typeTest\"")
             match.type(match, typeTest)
+            TimeUnit.SECONDS.sleep(1) // Wait for javascript to settle
             "<div id=\"typeTest\">(.*?)</div>".toRegex().find(browser.getSource())?.groupValues?.get(1)?.let {
                 logger.debug("Text in search box: $it")
                 if (it == typeTest) {
