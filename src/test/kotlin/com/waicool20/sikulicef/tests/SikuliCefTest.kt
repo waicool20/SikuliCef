@@ -130,6 +130,8 @@ fun main(args: Array<String>) {
             ImageIO.write(browser.currentFrameBuffer, "png", it)
         }
 
+        logger.debug("--------------------------------------------")
+        logger.debug("Test complete")
     }.start()
 }
 
