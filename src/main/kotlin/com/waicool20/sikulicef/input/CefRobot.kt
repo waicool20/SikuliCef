@@ -40,16 +40,14 @@ class CefRobot(val screen: CefScreen) : IRobot {
     private var autoDelay = 100
 
     init {
-        with(screen.browser.uiComponent) {
-            screen.browser.uiComponent.addMouseMotionListener(object : MouseMotionListener {
-                override fun mouseDragged(event: MouseEvent) = updateMouseCoords(event)
-                override fun mouseMoved(event: MouseEvent) = updateMouseCoords(event)
-                private fun updateMouseCoords(event: MouseEvent) {
-                    if (currentMouseX != event.x) currentMouseX = event.x
-                    if (currentMouseY != event.y) currentMouseY = event.y
-                }
-            })
-        }
+        screen.browser.uiComponent.addMouseMotionListener(object : MouseMotionListener {
+            override fun mouseDragged(event: MouseEvent) = updateMouseCoords(event)
+            override fun mouseMoved(event: MouseEvent) = updateMouseCoords(event)
+            private fun updateMouseCoords(event: MouseEvent) {
+                if (currentMouseX != event.x) currentMouseX = event.x
+                if (currentMouseY != event.y) currentMouseY = event.y
+            }
+        })
     }
 
     //<editor-fold desc="Mouse Actions">
@@ -59,13 +57,13 @@ class CefRobot(val screen: CefScreen) : IRobot {
             heldButtons = 0
         } else {
             generateMouseEvent(MouseEvent.MOUSE_RELEASED, buttons)
-            heldButtons = heldButtons.and(buttons.inv())
+            heldButtons = heldButtons and buttons.inv()
         }
         return heldButtons
     }
 
     override fun mouseDown(buttons: Int) {
-        heldButtons = if (heldButtons == 0) buttons else heldButtons.or(buttons)
+        heldButtons = if (heldButtons == 0) buttons else heldButtons or buttons
         generateMouseEvent(MouseEvent.MOUSE_PRESSED, heldButtons)
     }
 
@@ -110,10 +108,7 @@ class CefRobot(val screen: CefScreen) : IRobot {
 
     override fun mouseReset() {
         mouseMove(0, 0)
-        mouseUp(MouseEvent.BUTTON1_MASK
-                .and(MouseEvent.BUTTON2_MASK)
-                .and(MouseEvent.BUTTON3_MASK)
-        )
+        mouseUp(MouseEvent.BUTTON1_MASK and MouseEvent.BUTTON2_MASK and MouseEvent.BUTTON3_MASK)
     }
     //</editor-fold>
 
@@ -209,17 +204,14 @@ class CefRobot(val screen: CefScreen) : IRobot {
 
     private fun generateMouseEvent(mouseEvent: Int, buttons: Int) =
             screen.browser.uiComponent.dispatchEvent(MouseEvent(
-                    screen.browser.uiComponent.parent,
+                    screen.browser.uiComponent,
                     mouseEvent,
                     System.currentTimeMillis(),
                     buttons,
                     currentMouseX,
                     currentMouseY,
-                    currentMouseX,
-                    currentMouseY,
                     1,
-                    false,
-                    MouseEvent.NOBUTTON
+                    false
             ))
 
     private fun generateKeyEvent(keyEvent: Int, keyCode: Int) {
