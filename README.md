@@ -5,23 +5,38 @@ without taking total control of the system mouse.
 # Trying out SikuliCef
 
 Start by setting up the basic project structure by cloning
+
 ```
 # Clone this repository
-git clone git@github.com:waicool20/java-cef-framebuffer.git
+git clone git://github.com/waicool20/java-cef-framebuffer.git
 
 # Retrieve submodule dependencies
-git submodule update --recursive --remote
+git submodule update --init --recursive --remote
 
 ```
+
 Build the java-cef fork using the instructions at: https://bitbucket.org/chromiumembedded/java-cef/wiki/BranchesAndBuilding
 
-Build java sources using:
+###To build the library only:
+
 ```
-# windows
+# Windows
 ./gradlew.bat
 
-# linux / mac
+# Linux / MacOSX
 ./gradlew.sh
 ```
 
-A jar artifact will be generated in build/libs which can run a small demo
+A jar artifact containing only the library will be generated in build/libs directory.
+
+###To build the testing demo:
+
+```
+# Windows
+./gradlew.bat testJar
+
+# Linux / MacOSX
+./gradlew.sh testJar
+```
+
+A jar artifact containing the test demo jar executable will be generated in build/libs directory.
