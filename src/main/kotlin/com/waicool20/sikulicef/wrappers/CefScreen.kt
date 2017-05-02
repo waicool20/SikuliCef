@@ -17,9 +17,9 @@
 
 package com.waicool20.sikulicef.wrappers
 
+import com.waicool20.sikulicef.graphical.CefMouseCursor
 import com.waicool20.sikulicef.input.CefKeyBoard
 import com.waicool20.sikulicef.input.CefMouse
-import com.waicool20.sikulicef.graphical.CefMouseCursor
 import com.waicool20.sikulicef.input.CefRobot
 import com.waicool20.sikulicef.util.LayeredLayout
 import org.cef.browser.CefBrowser
@@ -30,6 +30,9 @@ import java.awt.Rectangle
 import javax.media.opengl.awt.GLCanvas
 import javax.swing.JLayeredPane
 
+/**
+ * Represents a [org.sikuli.script.IScreen] containing the visible viewport of the CefBrowser
+ */
 class CefScreen private constructor(val browser: CefBrowser) : CefRegion(
         browser.uiComponent.bounds.x,
         browser.uiComponent.bounds.y,
@@ -39,9 +42,19 @@ class CefScreen private constructor(val browser: CefBrowser) : CefRegion(
 
     companion object Factory {
         private val screens = mutableMapOf<Int, CefScreen>()
+        /**
+         * Get CefScreen bound to [org.cef.browser.CefBrowser] identifier
+         * @param identifier Identifier from [org.cef.browser.CefBrowser.getIdentifier]
+         */
         fun getScreen(identifier: Int = 0): CefScreen? = screens[identifier]
+
+        /**
+         * Get CefScreen bound to [org.cef.browser.CefBrowser] identifier or returns new CefScreen instance if not found
+         * @param browser [org.cef.browser.CefBrowser] instance
+         * @throws IllegalArgumentException Thrown if CefBrowser is not rendered using OSR mode
+         */
         fun getScreen(browser: CefBrowser): CefScreen {
-            screens[browser.identifier]?.let { return it }
+            getScreen(browser.identifier)?.let { return it }
             if (browser.uiComponent !is GLCanvas) throw IllegalArgumentException("CefScreen only supports OSR browser")
             return CefScreen(browser)
         }
@@ -55,9 +68,21 @@ class CefScreen private constructor(val browser: CefBrowser) : CefRegion(
     }
 
     private val robot = CefRobot(this)
+
+    /**
+     * [com.waicool20.sikulicef.input.CefMouse] instance bound to this screen
+     */
     val mouse = CefMouse(robot)
+
+    /**
+     * [com.waicool20.sikulicef.input.CefKeyBoard] instance bound to this screen
+     */
     val keyboard = CefKeyBoard(robot)
 
+    /**
+     * [javax.swing.JLayeredPane] containing the [org.cef.browser.CefBrowser] UI Component and
+     * software rendering of [com.waicool20.sikulicef.input.CefMouse]
+     */
     val uiComponent = run {
         val layeredPane = JLayeredPane()
         layeredPane.layout = LayeredLayout(layeredPane)
@@ -66,8 +91,14 @@ class CefScreen private constructor(val browser: CefBrowser) : CefRegion(
         layeredPane
     }
 
+    /**
+     * Clipboard of this screen
+     */
     var clipboard = ""
 
+    /**
+     * Gets the unique identifier of this screen
+     */
     fun getIdentifier() = browser.identifier
 
     override fun getScreen(): IScreen = this
