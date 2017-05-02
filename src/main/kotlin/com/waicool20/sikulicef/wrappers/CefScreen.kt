@@ -27,9 +27,10 @@ import org.sikuli.basics.Settings
 import org.sikuli.script.*
 import org.sikuli.util.ScreenHighlighter
 import java.awt.Rectangle
+import javax.media.opengl.awt.GLCanvas
 import javax.swing.JLayeredPane
 
-class CefScreen(val browser: CefBrowser) : CefRegion(
+class CefScreen private constructor(val browser: CefBrowser) : CefRegion(
         browser.uiComponent.bounds.x,
         browser.uiComponent.bounds.y,
         browser.uiComponent.bounds.width,
@@ -39,6 +40,11 @@ class CefScreen(val browser: CefBrowser) : CefRegion(
     companion object Factory {
         private val screens = mutableMapOf<Int, CefScreen>()
         fun getScreen(identifier: Int = 0): CefScreen? = screens[identifier]
+        fun getScreen(browser: CefBrowser): CefScreen {
+            screens[browser.identifier]?.let { return it }
+            if (browser.uiComponent !is GLCanvas) throw IllegalArgumentException("CefScreen only supports OSR browser")
+            return CefScreen(browser)
+        }
     }
 
     init {

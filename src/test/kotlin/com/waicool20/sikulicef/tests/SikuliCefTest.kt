@@ -55,7 +55,7 @@ fun main(args: Array<String>) {
     val cefApp = CefAppLoader.load(argsList)
     val client = cefApp.createClient()
     val browser = client.createBrowser(initTestPageResources().resolve("index.html").toUri().toString(), true, true)
-    val screen = CefScreen(browser)
+    val screen = CefScreen.getScreen(browser)
     val mainFrame = JFrame()
     mainFrame.contentPane.add(screen.uiComponent, BorderLayout.CENTER)
     mainFrame.title = "SikuliCefTest"
@@ -72,6 +72,7 @@ fun main(args: Array<String>) {
 
     Thread {
         ImagePath.add(ClassLoader.getSystemClassLoader().getResource("images"))
+        mainFrame.requestFocus()
 
         /* Test Mouse */
         measureTimeMillis { browser.waitForLoadComplete() }.let {
