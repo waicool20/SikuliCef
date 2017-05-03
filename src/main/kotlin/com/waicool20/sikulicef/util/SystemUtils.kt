@@ -25,7 +25,7 @@ object SystemUtils {
     fun loadLibrary(path: Path) = loadLibrary(listOf(path))
 
     fun loadLibrary(paths: List<Path>) {
-        val separator = if (isWindows()) ";" else ":"
+        val separator = if (OS.isWindows()) ";" else ":"
         val libs = System.getProperty("java.library.path").split(separator).toMutableSet()
         libs.addAll(paths.map { it.toAbsolutePath().parent.toString() }.distinct())
 
@@ -56,12 +56,26 @@ object SystemUtils {
             e.stackTrace.last().className
         }
     }
+}
 
+object OS {
     fun is32Bit() = !is64Bit()
     fun is64Bit() = System.getProperty("os.arch").contains("64")
     fun isWindows() = System.getProperty("os.name").toLowerCase().contains("win")
     fun isLinux() = System.getProperty("os.name").toLowerCase().contains("linux")
     fun isMac() = System.getProperty("os.name").toLowerCase().contains("mac")
+
+    fun isUnix() = !isWindows()
+    fun isDos() = isWindows()
+
+    val libraryExtention by lazy {
+        when {
+            isLinux() -> ".so"
+            isWindows() -> ".dll"
+            isMac() -> ".dylib"
+            else -> throw Exception("Unknown OS")
+        }
+    }
 }
 
 

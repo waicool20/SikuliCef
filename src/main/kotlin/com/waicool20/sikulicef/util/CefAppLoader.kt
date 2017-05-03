@@ -54,7 +54,7 @@ object CefAppLoader {
 
     private fun loadBinaries() {
         // Hack for icudtl.dat discovery on linux
-        if (SystemUtils.isLinux()) {
+        if (OS.isLinux()) {
             Files.createDirectories(FAKE_JVM_BIN)
             unpack(JVM.resolve("bin/java"), FAKE_JVM_BIN.resolve("java"))
             BINARIES.forEach { unpack(javaClass.classLoader.getResourceAsStream("java-cef-res/binaries/$it"), FAKE_JVM_BIN.resolve(it)) }
@@ -98,7 +98,7 @@ object CefAppLoader {
                         .map { it to LIB_DIR.resolve((if (it.nameCount > 2) it.subpath(1, it.nameCount) else it.fileName).toString().replace(".jarpak", ".jar")) }
                         .forEach {
                             unpack(it.first, it.second)
-                            if (!SystemUtils.isWindows()) {
+                            if (OS.isUnix()) {
                                 val perms = Files.getPosixFilePermissions(it.second).toMutableSet()
                                 perms.addAll(listOf(PosixFilePermission.OWNER_EXECUTE))
                                 Files.setPosixFilePermissions(it.second, perms)
@@ -108,14 +108,7 @@ object CefAppLoader {
         }
 
         Files.walk(LIB_DIR)
-                .filter {
-                    when {
-                        SystemUtils.isLinux() -> it.toString().endsWith(".so")
-                        SystemUtils.isMac() -> it.toString().endsWith(".dylib")
-                        SystemUtils.isWindows() -> it.toString().endsWith(".dll")
-                        else -> false
-                    }
-                }
+                .filter { it.toString().endsWith(OS.libraryExtention) }
                 .peek { SystemUtils.loadLibrary(it) } // Add to library path first
                 .forEach {
                     logger.debug("Loading library: $it")
@@ -130,7 +123,7 @@ object CefAppLoader {
             logger.debug("Loading jar library $it")
             SystemUtils.loadJarLibrary(it)
         }
-        if (SystemUtils.isMac()) {
+        if (OS.isMac()) {
             MAC_FRAMEWORK_DIR.resolve("Chromium Embedded Framework").let {
                 logger.debug("Loading library: $it")
                 System.load(it.toString())
@@ -158,7 +151,7 @@ object CefAppLoader {
 
     fun load(args: Array<String> = arrayOf<String>(), cefSettings: CefSettings = CefSettings()): CefApp {
         val arguments = args.toMutableList()
-        if (SystemUtils.isMac()) {
+        if (OS.isMac()) {
             arguments.removeIf { it.startsWith("--framework-dir-path") || it.startsWith("--browser-subprocess-path") }
             arguments.add("--framework-dir-path=$MAC_FRAMEWORK_DIR")
             arguments.add("--browser-subprocess-path=$MAC_HELPER")
